@@ -31,7 +31,8 @@ import { StatCard } from "@/components/admin/stat-card";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ActivityTimeline } from "@/components/admin/activity-timeline";
-import { DateRangeFilter, resolveDateRange } from "@/components/admin/date-range-filter";
+import { DateRangeFilter } from "@/components/admin/date-range-filter";
+import { resolveDateRange } from "@/lib/date-range";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 

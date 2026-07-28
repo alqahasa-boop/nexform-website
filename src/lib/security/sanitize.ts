@@ -1,9 +1,13 @@
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 
 /**
  * Real HTML sanitizer for rich-text fields (Content.body, ConstructionJourneyStage.richContent,
  * DesignIdea.description, ...). Every admin write path must call this before persisting HTML,
  * and the public renderer must never trust stored HTML without this having already run.
+ *
+ * Uses `sanitize-html` (pure JS, no jsdom) rather than a DOMPurify+jsdom combo — jsdom's
+ * dependency tree requires an ESM-only package directly via require(), which breaks under
+ * Vercel's Turbopack-bundled server runtime (works locally via plain Node, fails in production).
  */
 const ALLOWED_RICH_TEXT_TAGS = [
   "p", "br", "strong", "b", "em", "i", "u", "s", "a", "ul", "ol", "li",
@@ -11,10 +15,14 @@ const ALLOWED_RICH_TEXT_TAGS = [
 ];
 
 export function sanitizeRichText(html: string): string {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ALLOWED_RICH_TEXT_TAGS,
-    ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class"],
-    ALLOW_DATA_ATTR: false,
+  return sanitizeHtml(html, {
+    allowedTags: ALLOWED_RICH_TEXT_TAGS,
+    allowedAttributes: {
+      "*": ["class"],
+      a: ["href", "title", "target", "rel"],
+      img: ["src", "alt", "title"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
   });
 }
 

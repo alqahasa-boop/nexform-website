@@ -11,7 +11,8 @@ import {
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { StatCard } from "@/components/admin/stat-card";
 import { EmptyState } from "@/components/admin/empty-state";
-import { DateRangeFilter, resolveDateRange } from "@/components/admin/date-range-filter";
+import { DateRangeFilter } from "@/components/admin/date-range-filter";
+import { resolveDateRange } from "@/lib/date-range";
 import { Eye, Users, Download, MousePointerClick, MessageSquare, Search } from "lucide-react";
 import { BarChart3 } from "lucide-react";
 

@@ -59,3 +59,15 @@ export function publishContent(id: string) {
 export function deleteContent(id: string) {
   return db.content.delete({ where: { id } });
 }
+
+export function bulkPublishContent(ids: string[]) {
+  return db.content.updateMany({ where: { id: { in: ids } }, data: { status: "PUBLISHED", publishedAt: new Date() } });
+}
+
+export function bulkArchiveContent(ids: string[]) {
+  return db.content.updateMany({ where: { id: { in: ids } }, data: { status: "ARCHIVED" } });
+}
+
+export function bulkDeleteContent(ids: string[]) {
+  return db.content.deleteMany({ where: { id: { in: ids } } });
+}

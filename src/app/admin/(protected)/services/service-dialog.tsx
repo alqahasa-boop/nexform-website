@@ -20,6 +20,10 @@ export interface ServiceData {
   description: string | null;
   pricingDisplay: string;
   price: unknown;
+  icon?: string | null;
+  features?: string[];
+  ctaLabel?: string | null;
+  ctaUrl?: string | null;
 }
 
 const PRICING_OPTIONS = ["CONTACT_FOR_QUOTE", "STARTING_AT", "FIXED", "HIDDEN"];
@@ -31,6 +35,10 @@ export function ServiceDialog({ service }: { service?: ServiceData }) {
   const [description, setDescription] = useState(service?.description ?? "");
   const [pricingDisplay, setPricingDisplay] = useState(service?.pricingDisplay ?? "CONTACT_FOR_QUOTE");
   const [price, setPrice] = useState(service?.price ? String(service.price) : "");
+  const [icon, setIcon] = useState(service?.icon ?? "");
+  const [featuresText, setFeaturesText] = useState((service?.features ?? []).join("\n"));
+  const [ctaLabel, setCtaLabel] = useState(service?.ctaLabel ?? "");
+  const [ctaUrl, setCtaUrl] = useState(service?.ctaUrl ?? "");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -44,6 +52,13 @@ export function ServiceDialog({ service }: { service?: ServiceData }) {
         description: description || undefined,
         pricingDisplay,
         price: needsPrice && price ? Number(price) : undefined,
+        icon: icon || undefined,
+        features: featuresText
+          .split("\n")
+          .map((f) => f.trim())
+          .filter(Boolean),
+        ctaLabel: ctaLabel || undefined,
+        ctaUrl: ctaUrl || undefined,
       };
       const result = service ? await updateServiceAction(service.id, payload) : await createServiceAction(payload);
       if (result.success) {
@@ -100,6 +115,26 @@ export function ServiceDialog({ service }: { service?: ServiceData }) {
                 <Input id="service-price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
               </FormField>
             )}
+          </div>
+          <FormField label="Icon" htmlFor="service-icon" hint="lucide-react icon name shown on the public services grid, e.g. Compass">
+            <Input id="service-icon" value={icon} onChange={(e) => setIcon(e.target.value)} placeholder="Compass" />
+          </FormField>
+          <FormField label="Features" htmlFor="service-features" hint="One feature per line — shown as a bullet list on the public service card.">
+            <Textarea
+              id="service-features"
+              rows={3}
+              value={featuresText}
+              onChange={(e) => setFeaturesText(e.target.value)}
+              placeholder={"3D visualization\nOn-site supervision\nMaterial sourcing"}
+            />
+          </FormField>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="CTA Label" htmlFor="service-cta-label">
+              <Input id="service-cta-label" value={ctaLabel} onChange={(e) => setCtaLabel(e.target.value)} placeholder="Get a Quote" />
+            </FormField>
+            <FormField label="CTA URL" htmlFor="service-cta-url">
+              <Input id="service-cta-url" value={ctaUrl} onChange={(e) => setCtaUrl(e.target.value)} placeholder="https://…" />
+            </FormField>
           </div>
           <Button onClick={handleSubmit} disabled={isPending || !title || !slug}>
             {isPending && <Loader2 className="animate-spin" />}

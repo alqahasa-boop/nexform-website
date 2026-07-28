@@ -8,6 +8,8 @@ import { AdminPagination } from "@/components/admin/pagination";
 import { AdminSearchInput } from "@/components/admin/search-input";
 import { AdminSelectFilter } from "@/components/admin/select-filter";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { CsvExportButton } from "@/components/admin/csv-export-button";
+import { exportContactMessagesCsvAction } from "@/features/contact-messages/contact-messages.actions";
 import { formatDistanceToNow } from "date-fns";
 
 export const metadata: Metadata = { title: "Contact Messages" };
@@ -48,7 +50,11 @@ export default async function ContactMessagesPage({
 
   return (
     <div>
-      <AdminPageHeader title="Contact Messages" description="Messages submitted through the public contact form." />
+      <AdminPageHeader
+        title="Contact Messages"
+        description="Messages submitted through the public contact form."
+        actions={<CsvExportButton action={exportContactMessagesCsvAction} />}
+      />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <AdminSearchInput placeholder="Search by name, email, or message…" />

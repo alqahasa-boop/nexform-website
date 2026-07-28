@@ -7,17 +7,23 @@ import {
   updateContent,
   publishContent,
   deleteContent,
+  listContent,
+  bulkPublishContent,
+  bulkArchiveContent,
+  bulkDeleteContent,
 } from "./content.repository";
 import { createContentSchema, updateContentSchema } from "./types";
 import { sanitizeRichText } from "@/lib/security/sanitize";
 import { recordActivity } from "@/features/activity-logs/activity-logs.repository";
+import { snapshotBeforeUpdate } from "@/features/revisions/revisions.actions";
+import { toCsv } from "@/lib/csv";
 import { db } from "@/lib/db";
 import { apiSuccess, apiError, type ApiResult } from "@/types/api";
 
 export async function createContentAction(input: unknown): Promise<ApiResult<{ id: string }>> {
   try {
     const user = await assertPermission("content:create");
-    const parsed = createContentSchema.safeParse(input);
+    const parsed = createContentSchema.omit({ authorId: true }).safeParse(input);
     if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? "Invalid input.", "VALIDATION");
 
     const existing = await db.content.findUnique({
@@ -51,6 +57,7 @@ export async function updateContentAction(id: string, input: unknown): Promise<A
       if (existing && existing.id !== id) return apiError("A content item with this slug already exists in this language.", "DUPLICATE_SLUG");
     }
 
+    await snapshotBeforeUpdate("Content", id, user.id);
     await updateContent(id, {
       ...parsed.data,
       ...(parsed.data.body && { body: sanitizeRichText(parsed.data.body) }),
@@ -114,6 +121,70 @@ export async function deleteContentAction(id: string): Promise<ApiResult<null>> 
     await recordActivity({ userId: user.id, action: "DELETE", entityType: "Content", entityId: id });
     revalidatePath("/admin/content");
     return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function bulkPublishContentAction(ids: string[]): Promise<ApiResult<null>> {
+  try {
+    if (ids.length === 0) return apiError("No items selected.", "VALIDATION");
+    const user = await assertPermission("content:publish");
+    await bulkPublishContent(ids);
+    await recordActivity({ userId: user.id, action: "PUBLISH", entityType: "Content", metadata: { bulk: true, ids } });
+    revalidatePath("/admin/content");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function bulkArchiveContentAction(ids: string[]): Promise<ApiResult<null>> {
+  try {
+    if (ids.length === 0) return apiError("No items selected.", "VALIDATION");
+    const user = await assertPermission("content:update");
+    await bulkArchiveContent(ids);
+    await recordActivity({ userId: user.id, action: "ARCHIVE", entityType: "Content", metadata: { bulk: true, ids } });
+    revalidatePath("/admin/content");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function bulkDeleteContentAction(ids: string[]): Promise<ApiResult<null>> {
+  try {
+    if (ids.length === 0) return apiError("No items selected.", "VALIDATION");
+    const user = await assertPermission("content:delete");
+    await bulkDeleteContent(ids);
+    await recordActivity({ userId: user.id, action: "DELETE", entityType: "Content", metadata: { bulk: true, ids } });
+    revalidatePath("/admin/content");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function exportContentCsvAction(): Promise<ApiResult<{ csv: string; filename: string }>> {
+  try {
+    await assertPermission("content:view");
+    const { items } = await listContent({ page: 1, pageSize: 10000 });
+    const csv = toCsv(items, [
+      { key: "title", header: "Title", value: (r) => r.title },
+      { key: "slug", header: "Slug", value: (r) => r.slug },
+      { key: "contentType", header: "Type", value: (r) => r.contentType },
+      { key: "language", header: "Language", value: (r) => r.language },
+      { key: "status", header: "Status", value: (r) => r.status },
+      { key: "category", header: "Category", value: (r) => r.category?.name ?? "" },
+      { key: "author", header: "Author", value: (r) => r.author?.name ?? "" },
+      { key: "createdAt", header: "Created At", value: (r) => r.createdAt.toISOString() },
+      { key: "publishedAt", header: "Published At", value: (r) => r.publishedAt?.toISOString() ?? "" },
+    ]);
+    return apiSuccess({ csv, filename: `content-${Date.now()}.csv` });
   } catch (error) {
     if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
     throw error;

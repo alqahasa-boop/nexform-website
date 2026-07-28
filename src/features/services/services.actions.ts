@@ -2,9 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 import { assertPermission, ForbiddenError } from "@/lib/auth/admin-session";
-import { createService, updateService, publishService, deleteService } from "./services.repository";
+import {
+  createService,
+  updateService,
+  publishService,
+  deleteService,
+  reorderServices,
+  bulkPublishServices,
+  bulkDeleteServices,
+} from "./services.repository";
 import { createServiceSchema, updateServiceSchema } from "./types";
 import { recordActivity } from "@/features/activity-logs/activity-logs.repository";
+import { snapshotBeforeUpdate } from "@/features/revisions/revisions.actions";
 import { db } from "@/lib/db";
 import { apiSuccess, apiError, type ApiResult } from "@/types/api";
 
@@ -36,6 +45,7 @@ export async function updateServiceAction(id: string, input: unknown): Promise<A
     const parsed = updateServiceSchema.safeParse(input);
     if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? "Invalid input.", "VALIDATION");
 
+    await snapshotBeforeUpdate("Service", id, user.id);
     await updateService(id, parsed.data);
     await recordActivity({ userId: user.id, action: "UPDATE", entityType: "Service", entityId: id });
     revalidatePath("/admin/services");
@@ -64,6 +74,47 @@ export async function deleteServiceAction(id: string): Promise<ApiResult<null>> 
     const user = await assertPermission("content:delete");
     await deleteService(id);
     await recordActivity({ userId: user.id, action: "DELETE", entityType: "Service", entityId: id });
+    revalidatePath("/admin/services");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function bulkPublishServicesAction(ids: string[]): Promise<ApiResult<null>> {
+  try {
+    if (ids.length === 0) return apiError("No items selected.", "VALIDATION");
+    const user = await assertPermission("content:publish");
+    await bulkPublishServices(ids);
+    await recordActivity({ userId: user.id, action: "PUBLISH", entityType: "Service", metadata: { bulk: true, ids } });
+    revalidatePath("/admin/services");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function bulkDeleteServicesAction(ids: string[]): Promise<ApiResult<null>> {
+  try {
+    if (ids.length === 0) return apiError("No items selected.", "VALIDATION");
+    const user = await assertPermission("content:delete");
+    await bulkDeleteServices(ids);
+    await recordActivity({ userId: user.id, action: "DELETE", entityType: "Service", metadata: { bulk: true, ids } });
+    revalidatePath("/admin/services");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function reorderServicesAction(orderedIds: string[]): Promise<ApiResult<null>> {
+  try {
+    const user = await assertPermission("content:update");
+    await reorderServices(orderedIds);
+    await recordActivity({ userId: user.id, action: "UPDATE", entityType: "Service", metadata: { reordered: true } });
     revalidatePath("/admin/services");
     return apiSuccess(null);
   } catch (error) {

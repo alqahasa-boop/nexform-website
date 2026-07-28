@@ -4,18 +4,18 @@ import { Plus } from "lucide-react";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { listContent } from "@/features/content/content.repository";
 import { AdminPageHeader } from "@/components/admin/page-header";
-import { DataTable, type DataTableColumn } from "@/components/admin/data-table";
+import { BulkActionsTable } from "@/components/admin/bulk-actions-table";
 import { AdminPagination } from "@/components/admin/pagination";
 import { AdminSearchInput } from "@/components/admin/search-input";
 import { AdminSelectFilter } from "@/components/admin/select-filter";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
+import { CsvExportButton } from "@/components/admin/csv-export-button";
 import { ContentRowActions } from "./content-row-actions";
+import { exportContentCsvAction, bulkPublishContentAction, bulkArchiveContentAction, bulkDeleteContentAction } from "@/features/content/content.actions";
 
 export const metadata: Metadata = { title: "Content" };
 export const dynamic = "force-dynamic";
-
-type ContentRow = Awaited<ReturnType<typeof listContent>>["items"][number];
 
 export default async function ContentListPage({
   searchParams,
@@ -33,34 +33,19 @@ export default async function ContentListPage({
     search: params.search,
   });
 
-  const columns: DataTableColumn<ContentRow>[] = [
-    {
-      key: "title",
-      header: "Title",
-      render: (row) => (
-        <div>
-          <p className="font-medium text-foreground">{row.title}</p>
-          <p className="text-xs text-muted-foreground">/{row.slug}</p>
-        </div>
-      ),
-    },
-    { key: "type", header: "Type", render: (row) => <span className="text-muted-foreground">{row.contentType}</span> },
-    { key: "language", header: "Lang", render: (row) => <span className="uppercase text-muted-foreground">{row.language}</span> },
-    { key: "category", header: "Category", render: (row) => <span className="text-muted-foreground">{row.category?.name ?? "—"}</span> },
-    { key: "status", header: "Status", render: (row) => <StatusBadge status={row.status} /> },
-    { key: "author", header: "Author", render: (row) => <span className="text-muted-foreground">{row.author?.name ?? "—"}</span> },
-  ];
-
   return (
     <div>
       <AdminPageHeader
         title="Content"
         description="Manage articles and pages across the site."
         actions={
-          <Button render={<Link href="/admin/content/new" />} nativeButton={false}>
-            <Plus className="size-4" />
-            New Content
-          </Button>
+          <div className="flex gap-2">
+            <CsvExportButton action={exportContentCsvAction} />
+            <Button render={<Link href="/admin/content/new" />} nativeButton={false}>
+              <Plus className="size-4" />
+              New Content
+            </Button>
+          </div>
         }
       />
 
@@ -87,12 +72,31 @@ export default async function ContentListPage({
         />
       </div>
 
-      <DataTable
-        columns={columns}
-        rows={result.items}
+      <BulkActionsTable
+        rows={result.items.map((row) => ({
+          id: row.id,
+          content: (
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate font-medium text-foreground">{row.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  /{row.slug} · {row.contentType} · {row.language.toUpperCase()} · {row.category?.name ?? "Uncategorized"}
+                  {row.author?.name ? ` · ${row.author.name}` : ""}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <StatusBadge status={row.status} />
+                <ContentRowActions id={row.id} />
+              </div>
+            </div>
+          ),
+        }))}
         emptyTitle="No content yet"
-        emptyDescription="Create your first article or page to get started."
-        rowActions={(row) => <ContentRowActions id={row.id} />}
+        actions={[
+          { label: "Publish", onRun: bulkPublishContentAction },
+          { label: "Archive", onRun: bulkArchiveContentAction },
+          { label: "Delete", destructive: true, confirm: "Delete the selected content items? This cannot be undone.", onRun: bulkDeleteContentAction },
+        ]}
       />
       <AdminPagination page={result.page} pageSize={result.pageSize} total={result.total} totalPages={result.totalPages} />
     </div>

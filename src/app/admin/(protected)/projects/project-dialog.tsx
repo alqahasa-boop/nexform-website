@@ -7,6 +7,9 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { FormField } from "@/components/admin/form-field";
 import { SlugField } from "@/components/admin/slug-field";
@@ -20,21 +23,39 @@ export interface ProjectData {
   summary: string | null;
   location: string | null;
   coverImage: { id: string; url: string } | null;
+  clientName?: string | null;
+  videoUrl?: string | null;
+  featured?: boolean;
+  styleId?: string | null;
 }
 
-export function ProjectDialog({ project }: { project?: ProjectData }) {
+export function ProjectDialog({ project, styles = [] }: { project?: ProjectData; styles?: { id: string; name: string }[] }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(project?.title ?? "");
   const [slug, setSlug] = useState(project?.slug ?? "");
   const [summary, setSummary] = useState(project?.summary ?? "");
   const [location, setLocation] = useState(project?.location ?? "");
   const [coverImage, setCoverImage] = useState<{ id: string; url: string } | null>(project?.coverImage ?? null);
+  const [clientName, setClientName] = useState(project?.clientName ?? "");
+  const [videoUrl, setVideoUrl] = useState(project?.videoUrl ?? "");
+  const [featured, setFeatured] = useState(project?.featured ?? false);
+  const [styleId, setStyleId] = useState(project?.styleId ?? "none");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = () => {
     startTransition(async () => {
-      const payload = { title, slug, summary: summary || undefined, location: location || undefined, coverImageId: coverImage?.id };
+      const payload = {
+        title,
+        slug,
+        summary: summary || undefined,
+        location: location || undefined,
+        coverImageId: coverImage?.id,
+        clientName: clientName || undefined,
+        videoUrl: videoUrl || undefined,
+        featured,
+        styleId: styleId === "none" ? undefined : styleId,
+      };
       const result = project ? await updateProjectAction(project.id, payload) : await createProjectAction(payload);
       if (result.success) {
         toast.success(project ? "Project updated." : "Project created.");
@@ -76,6 +97,33 @@ export function ProjectDialog({ project }: { project?: ProjectData }) {
           <FormField label="Cover Image">
             <MediaPicker value={coverImage} onChange={setCoverImage} />
           </FormField>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="Client" htmlFor="project-client">
+              <Input id="project-client" value={clientName} onChange={(e) => setClientName(e.target.value)} />
+            </FormField>
+            <FormField label="Style">
+              <Select value={styleId} onValueChange={(v) => v && setStyleId(v)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No style</SelectItem>
+                  {styles.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+          </div>
+          <FormField label="Video URL" htmlFor="project-video" hint="YouTube/Vimeo link shown on the project's public page.">
+            <Input id="project-video" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://…" />
+          </FormField>
+          <div className="flex items-center gap-2">
+            <Switch id="project-featured" checked={featured} onCheckedChange={(v) => setFeatured(v === true)} />
+            <Label htmlFor="project-featured">Featured</Label>
+          </div>
           <Button onClick={handleSubmit} disabled={isPending || !title || !slug}>
             {isPending && <Loader2 className="animate-spin" />}
             {project ? "Save Changes" : "Create Project"}

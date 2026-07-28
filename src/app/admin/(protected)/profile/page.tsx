@@ -5,6 +5,7 @@ import { AdminPageHeader } from "@/components/admin/page-header";
 import { UserAvatar } from "@/components/admin/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { ProfileForm } from "./profile-form";
+import { TwoFactorSettings } from "./two-factor-settings";
 
 export const metadata: Metadata = { title: "My Profile" };
 export const dynamic = "force-dynamic";
@@ -34,6 +35,10 @@ export default async function ProfilePage() {
       </div>
 
       <ProfileForm initialName={user.name ?? ""} />
+
+      <div className="mt-6">
+        <TwoFactorSettings initialEnabled={user.twoFactorEnabled} />
+      </div>
     </div>
   );
 }

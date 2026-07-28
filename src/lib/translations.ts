@@ -6,6 +6,7 @@ export const translations = {
       about: "About Us",
       services: "Services",
       projects: "Projects",
+      companies: "Companies",
       knowledge: "Knowledge",
       knowledgeItems: {
         buildJourney: "Build Journey",
@@ -223,6 +224,19 @@ export const translations = {
       emptyState: "No projects in this category yet — check back soon.",
     },
 
+    companiesPage: {
+      heroEyebrow: "Trusted Partners",
+      heroTitle: "Companies Directory",
+      heroSubtitle: "Verified contractors, suppliers, and specialists trusted by NEXFORM — full directory coming soon.",
+      eyebrow: "Directory",
+      title: "Companies We Work With",
+      comingSoon: "Directory coming soon",
+      emptyState: "No companies listed yet — check back soon.",
+      featuredLabel: "Featured",
+      visitWebsite: "Visit Website",
+      contact: "Contact",
+    },
+
     knowledgePage: {
       heroEyebrow: "Learn With Us",
       heroTitle: "Knowledge Center",
@@ -356,6 +370,7 @@ export const translations = {
       about: "من نحن",
       services: "خدماتنا",
       projects: "مشاريعنا",
+      companies: "الشركات",
       knowledge: "المعرفة",
       knowledgeItems: {
         buildJourney: "رحلة البناء",
@@ -562,6 +577,19 @@ export const translations = {
       comingSoon: "قريباً",
       placeholderTitle: "المشروع قريباً",
       emptyState: "لا توجد مشاريع بهذا التصنيف بعد — تابعونا قريباً.",
+    },
+
+    companiesPage: {
+      heroEyebrow: "شركاء موثوقون",
+      heroTitle: "دليل الشركات",
+      heroSubtitle: "مقاولون وموردون ومختصون موثوقون يتعامل معهم نكسفورم — الدليل الكامل قريباً.",
+      eyebrow: "الدليل",
+      title: "الشركات التي نتعامل معها",
+      comingSoon: "الدليل قريباً",
+      emptyState: "لا توجد شركات مدرجة بعد — تابعونا قريباً.",
+      featuredLabel: "مميز",
+      visitWebsite: "زيارة الموقع",
+      contact: "تواصل",
     },
 
     knowledgePage: {

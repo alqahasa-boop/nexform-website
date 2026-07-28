@@ -6,6 +6,7 @@ import { Loader2, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/admin/confirmation-dialog";
+import { RevisionHistoryDialog } from "@/components/admin/revision-history-dialog";
 import { publishDesignIdeaAction, deleteDesignIdeaAction } from "@/features/design-ideas/design-ideas.actions";
 import { IdeaDialog, type DesignIdeaData } from "./idea-dialog";
 
@@ -31,6 +32,7 @@ export function IdeaRowActions({ idea }: { idea: DesignIdeaData }) {
         {isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
       </Button>
       <IdeaDialog idea={idea} />
+      <RevisionHistoryDialog entityType="DesignIdea" entityId={idea.id} />
       <ConfirmationDialog
         title="Delete this design idea?"
         description="This cannot be undone."

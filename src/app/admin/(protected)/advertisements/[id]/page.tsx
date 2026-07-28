@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { db } from "@/lib/db";
+import { listPlacements } from "@/features/advertisements/advertisements.repository";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { CampaignStatusActions } from "./campaign-status-actions";
 import { AddCreativeForm } from "./add-creative-form";
+import { AssignPlacementForm } from "./assign-placement-form";
 
 export const metadata: Metadata = { title: "Manage Campaign" };
 export const dynamic = "force-dynamic";
@@ -14,10 +16,17 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
   await requirePermission("advertisements:view");
   const { id } = await params;
 
-  const campaign = await db.advertisementCampaign.findUnique({
-    where: { id },
-    include: { company: true, package: true, creatives: { include: { image: true } } },
-  });
+  const [campaign, placements] = await Promise.all([
+    db.advertisementCampaign.findUnique({
+      where: { id },
+      include: {
+        company: true,
+        package: true,
+        creatives: { include: { image: true, placements: { include: { placement: true } } } },
+      },
+    }),
+    listPlacements(),
+  ]);
   if (!campaign) notFound();
 
   return (
@@ -53,6 +62,17 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
                   <p className="mt-1 text-xs text-muted-foreground">
                     {creative.impressionCount} impressions · {creative.clickCount} clicks · {ctr}% CTR
                   </p>
+                  {creative.placements.length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {creative.placements.map((assignment) => (
+                        <li key={assignment.id} className="text-xs text-muted-foreground">
+                          → {assignment.placement.name}
+                          {assignment.deviceTargeting.length > 0 && ` (${assignment.deviceTargeting.join(", ")})`}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <AssignPlacementForm campaignId={campaign.id} creativeId={creative.id} placements={placements} />
                 </div>
               );
             })}

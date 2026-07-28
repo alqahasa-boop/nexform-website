@@ -6,6 +6,7 @@ import { Loader2, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/admin/confirmation-dialog";
+import { RevisionHistoryDialog } from "@/components/admin/revision-history-dialog";
 import { publishServiceAction, deleteServiceAction } from "@/features/services/services.actions";
 import { ServiceDialog, type ServiceData } from "./service-dialog";
 
@@ -31,6 +32,7 @@ export function ServiceRowActions({ service }: { service: ServiceData }) {
         {isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
       </Button>
       <ServiceDialog service={service} />
+      <RevisionHistoryDialog entityType="Service" entityId={service.id} />
       <ConfirmationDialog
         title="Delete this service?"
         description="This cannot be undone."

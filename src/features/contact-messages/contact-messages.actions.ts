@@ -7,10 +7,12 @@ import {
   replyToContactMessage,
   archiveContactMessage,
   deleteContactMessage,
+  listContactMessages,
 } from "./contact-messages.repository";
 import { replyToContactMessageSchema } from "./types";
 import { recordActivity } from "@/features/activity-logs/activity-logs.repository";
 import { sendEmail } from "@/services/email.service";
+import { toCsv } from "@/lib/csv";
 import { db } from "@/lib/db";
 import { apiSuccess, apiError, type ApiResult } from "@/types/api";
 
@@ -86,6 +88,27 @@ export async function deleteContactMessageAction(id: string): Promise<ApiResult<
     await recordActivity({ userId: user.id, action: "DELETE", entityType: "ContactMessage", entityId: id });
     revalidatePath("/admin/contact-messages");
     return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function exportContactMessagesCsvAction(): Promise<ApiResult<{ csv: string; filename: string }>> {
+  try {
+    await assertPermission("contactMessages:view");
+    const { items } = await listContactMessages({ page: 1, pageSize: 10000 });
+    const csv = toCsv(items, [
+      { key: "name", header: "Name", value: (r) => r.name },
+      { key: "email", header: "Email", value: (r) => r.email },
+      { key: "phone", header: "Phone", value: (r) => r.phone ?? "" },
+      { key: "status", header: "Status", value: (r) => r.status },
+      { key: "isRead", header: "Read", value: (r) => (r.isRead ? "Yes" : "No") },
+      { key: "assignedTo", header: "Assigned To", value: (r) => r.assignedTo?.name ?? "" },
+      { key: "message", header: "Message", value: (r) => r.message },
+      { key: "createdAt", header: "Received At", value: (r) => r.createdAt.toISOString() },
+    ]);
+    return apiSuccess({ csv, filename: `contact-messages-${Date.now()}.csv` });
   } catch (error) {
     if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
     throw error;

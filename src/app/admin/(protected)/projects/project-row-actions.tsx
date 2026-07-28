@@ -6,10 +6,11 @@ import { Loader2, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/admin/confirmation-dialog";
+import { RevisionHistoryDialog } from "@/components/admin/revision-history-dialog";
 import { publishProjectAction, deleteProjectAction } from "@/features/projects/projects.actions";
 import { ProjectDialog, type ProjectData } from "./project-dialog";
 
-export function ProjectRowActions({ project }: { project: ProjectData }) {
+export function ProjectRowActions({ project, styles = [] }: { project: ProjectData; styles?: { id: string; name: string }[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -30,7 +31,8 @@ export function ProjectRowActions({ project }: { project: ProjectData }) {
       >
         {isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
       </Button>
-      <ProjectDialog project={project} />
+      <ProjectDialog project={project} styles={styles} />
+      <RevisionHistoryDialog entityType="Project" entityId={project.id} />
       <ConfirmationDialog
         title="Delete this project?"
         description="This cannot be undone."

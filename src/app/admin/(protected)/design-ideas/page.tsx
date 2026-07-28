@@ -2,17 +2,16 @@ import type { Metadata } from "next";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { listDesignIdeas } from "@/features/design-ideas/design-ideas.repository";
 import { AdminPageHeader } from "@/components/admin/page-header";
-import { DataTable, type DataTableColumn } from "@/components/admin/data-table";
+import { BulkActionsTable } from "@/components/admin/bulk-actions-table";
 import { AdminPagination } from "@/components/admin/pagination";
 import { AdminSelectFilter } from "@/components/admin/select-filter";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { IdeaDialog } from "./idea-dialog";
 import { IdeaRowActions } from "./idea-row-actions";
+import { bulkPublishDesignIdeasAction, bulkDeleteDesignIdeasAction } from "@/features/design-ideas/design-ideas.actions";
 
 export const metadata: Metadata = { title: "Design Ideas" };
 export const dynamic = "force-dynamic";
-
-type IdeaRow = Awaited<ReturnType<typeof listDesignIdeas>>["items"][number];
 
 export default async function DesignIdeasPage({
   searchParams,
@@ -24,14 +23,6 @@ export default async function DesignIdeasPage({
   const page = Number(params.page) || 1;
 
   const result = await listDesignIdeas({ page, designCategory: params.designCategory as never });
-
-  const columns: DataTableColumn<IdeaRow>[] = [
-    { key: "title", header: "Title", render: (row) => <span className="font-medium">{row.title}</span> },
-    { key: "category", header: "Category", render: (row) => <span className="text-muted-foreground">{row.designCategory.replace(/_/g, " ")}</span> },
-    { key: "status", header: "Status", render: (row) => <StatusBadge status={row.status} /> },
-    { key: "views", header: "Views", render: (row) => <span className="tabular-nums text-muted-foreground">{row.viewCount}</span> },
-    { key: "saves", header: "Saves", render: (row) => <span className="tabular-nums text-muted-foreground">{row.saveCount}</span> },
-  ];
 
   return (
     <div>
@@ -50,11 +41,29 @@ export default async function DesignIdeasPage({
         />
       </div>
 
-      <DataTable
-        columns={columns}
-        rows={result.items}
+      <BulkActionsTable
+        rows={result.items.map((row) => ({
+          id: row.id,
+          content: (
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate font-medium text-foreground">{row.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  {row.designCategory.replace(/_/g, " ")} · {row.viewCount} views · {row.saveCount} saves
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <StatusBadge status={row.status} />
+                <IdeaRowActions idea={{ id: row.id, slug: row.slug, title: row.title, description: row.description, designCategory: row.designCategory, coverImage: row.coverImage }} />
+              </div>
+            </div>
+          ),
+        }))}
         emptyTitle="No design ideas yet"
-        rowActions={(row) => <IdeaRowActions idea={{ id: row.id, slug: row.slug, title: row.title, description: row.description, designCategory: row.designCategory, coverImage: row.coverImage }} />}
+        actions={[
+          { label: "Publish", onRun: bulkPublishDesignIdeasAction },
+          { label: "Delete", destructive: true, confirm: "Delete the selected design ideas? This cannot be undone.", onRun: bulkDeleteDesignIdeasAction },
+        ]}
       />
       <AdminPagination page={result.page} pageSize={result.pageSize} total={result.total} totalPages={result.totalPages} />
     </div>

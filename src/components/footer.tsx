@@ -15,6 +15,7 @@ export function Footer() {
     { href: "/about", label: t.nav.about },
     { href: "/services", label: t.nav.services },
     { href: "/projects", label: t.nav.projects },
+    { href: "/companies", label: t.nav.companies },
     { href: "/knowledge", label: t.nav.knowledge },
     { href: "/contact", label: t.nav.contact },
   ];

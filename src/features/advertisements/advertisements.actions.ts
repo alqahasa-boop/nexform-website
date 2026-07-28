@@ -10,8 +10,11 @@ import {
   rejectCampaign,
   deleteCampaign,
   createCreative,
+  assignCreativeToPlacement,
+  recordAdImpression,
+  recordAdClick,
 } from "./advertisements.repository";
-import { createCampaignSchema, createCreativeSchema } from "./types";
+import { createCampaignSchema, createCreativeSchema, assignCreativeToPlacementSchema } from "./types";
 import { recordActivity } from "@/features/activity-logs/activity-logs.repository";
 import { apiSuccess, apiError, type ApiResult } from "@/types/api";
 
@@ -117,4 +120,31 @@ export async function deleteCampaignAction(id: string): Promise<ApiResult<null>>
     if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
     throw error;
   }
+}
+
+export async function assignCreativeToPlacementAction(input: unknown): Promise<ApiResult<{ id: string }>> {
+  try {
+    const user = await assertPermission("advertisements:update");
+    const parsed = assignCreativeToPlacementSchema.safeParse(input);
+    if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? "Invalid input.", "VALIDATION");
+
+    const assignment = await assignCreativeToPlacement(parsed.data);
+    await recordActivity({ userId: user.id, action: "UPDATE", entityType: "AdvertisementCampaignPlacement", entityId: assignment.id });
+    revalidatePath(`/admin/advertisements/${parsed.data.campaignId}`);
+    return apiSuccess({ id: assignment.id });
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+/** Public — called from the site's AdSlot component. No auth: any visitor triggers an impression/click. */
+export async function recordAdImpressionAction(creativeId: string): Promise<ApiResult<null>> {
+  await recordAdImpression(creativeId);
+  return apiSuccess(null);
+}
+
+export async function recordAdClickAction(creativeId: string): Promise<ApiResult<null>> {
+  await recordAdClick(creativeId);
+  return apiSuccess(null);
 }

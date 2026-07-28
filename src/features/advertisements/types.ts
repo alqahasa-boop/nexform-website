@@ -47,9 +47,12 @@ export const createCreativeSchema = z.object({
 });
 export type CreateCreativeInput = z.infer<typeof createCreativeSchema>;
 
+export const DEVICE_TARGETS = ["desktop", "mobile", "tablet"] as const;
+
 export const assignCreativeToPlacementSchema = z.object({
   campaignId: z.string().uuid(),
   placementId: z.string().uuid(),
   creativeId: z.string().uuid(),
+  deviceTargeting: z.array(z.enum(DEVICE_TARGETS)).default([]),
 });
 export type AssignCreativeToPlacementInput = z.infer<typeof assignCreativeToPlacementSchema>;

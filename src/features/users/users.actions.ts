@@ -12,11 +12,13 @@ import {
   countSuperAdmins,
   userHasRole,
   getUserById,
+  listUsers,
 } from "./users.repository";
 import { createUserSchema } from "./types";
 import { createPasswordResetToken } from "@/lib/auth/tokens";
 import { sendEmail, renderPasswordResetEmail } from "@/services/email.service";
 import { recordActivity } from "@/features/activity-logs/activity-logs.repository";
+import { toCsv } from "@/lib/csv";
 import { apiSuccess, apiError, type ApiResult } from "@/types/api";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -154,6 +156,26 @@ export async function deleteUserAction(userId: string): Promise<ApiResult<null>>
     await recordActivity({ userId: actor.id, action: "DELETE", entityType: "User", entityId: userId });
     revalidatePath("/admin/users");
     return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function exportUsersCsvAction(): Promise<ApiResult<{ csv: string; filename: string }>> {
+  try {
+    await assertPermission("users:view");
+    const { items } = await listUsers({ page: 1, pageSize: 10000 });
+    const csv = toCsv(items, [
+      { key: "name", header: "Name", value: (r) => r.name ?? "" },
+      { key: "email", header: "Email", value: (r) => r.email },
+      { key: "roles", header: "Roles", value: (r) => r.roles.map((ur) => ur.role.name).join("; ") },
+      { key: "isActive", header: "Active", value: (r) => (r.isActive ? "Yes" : "No") },
+      { key: "twoFactorEnabled", header: "2FA Enabled", value: (r) => (r.twoFactorEnabled ? "Yes" : "No") },
+      { key: "lastLoginAt", header: "Last Login", value: (r) => r.lastLoginAt?.toISOString() ?? "" },
+      { key: "createdAt", header: "Created At", value: (r) => r.createdAt.toISOString() },
+    ]);
+    return apiSuccess({ csv, filename: `users-${Date.now()}.csv` });
   } catch (error) {
     if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
     throw error;

@@ -8,6 +8,8 @@ import { AdminPagination } from "@/components/admin/pagination";
 import { AdminSearchInput } from "@/components/admin/search-input";
 import { AdminSelectFilter } from "@/components/admin/select-filter";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { CsvExportButton } from "@/components/admin/csv-export-button";
+import { exportDesignRequestsCsvAction } from "@/features/design-requests/design-requests.actions";
 import { formatDistanceToNow } from "date-fns";
 
 export const metadata: Metadata = { title: "Design Requests" };
@@ -51,7 +53,11 @@ export default async function DesignRequestsPage({
 
   return (
     <div>
-      <AdminPageHeader title="Design Requests" description="Customer requests for architectural and interior design work." />
+      <AdminPageHeader
+        title="Design Requests"
+        description="Customer requests for architectural and interior design work."
+        actions={<CsvExportButton action={exportDesignRequestsCsvAction} />}
+      />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <AdminSearchInput placeholder="Search by name, email, or request #…" />

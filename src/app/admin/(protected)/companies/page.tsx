@@ -8,6 +8,7 @@ import { DataTable, type DataTableColumn } from "@/components/admin/data-table";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CompanyRowActions } from "./company-row-actions";
 
 export const metadata: Metadata = { title: "Companies" };
 export const dynamic = "force-dynamic";
@@ -55,11 +56,7 @@ export default async function CompaniesPage() {
         columns={columns}
         rows={companies}
         emptyTitle="No companies yet"
-        rowActions={(row) => (
-          <Link href={`/admin/companies/${row.id}`} className="text-sm font-medium text-primary hover:underline">
-            Manage
-          </Link>
-        )}
+        rowActions={(row) => <CompanyRowActions id={row.id} />}
       />
     </div>
   );

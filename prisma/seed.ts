@@ -86,10 +86,46 @@ function toTitleCase(key: string) {
     .join(" ");
 }
 
+/** Default Companies Directory listing tiers — reference business configuration, not demo content. */
+async function seedCompanyListingPackages() {
+  const packages = [
+    { name: "Basic", description: "Standard directory listing.", durationDays: 365, maxFeaturedSlots: 0 },
+    { name: "Featured", description: "Priority placement and a featured badge.", durationDays: 365, maxFeaturedSlots: 1 },
+    { name: "Premium", description: "Top placement, featured badge, and extended gallery.", durationDays: 365, maxFeaturedSlots: 3 },
+  ];
+
+  for (const pkg of packages) {
+    const existing = await db.companyListingPackage.findFirst({ where: { name: pkg.name } });
+    if (!existing) await db.companyListingPackage.create({ data: pkg });
+  }
+
+  console.log(`Seeded ${packages.length} company listing packages.`);
+}
+
+/** Default ad slots the public site actually renders — placement keys must match `<AdSlot placementKey="...">` call sites. */
+async function seedAdvertisementPlacements() {
+  const placements = [
+    { key: "homepage-hero-banner", name: "Homepage Hero Banner", pageContext: "homepage", recommendedWidth: 1200, recommendedHeight: 300 },
+    { key: "companies-directory-banner", name: "Companies Directory Banner", pageContext: "companies", recommendedWidth: 1200, recommendedHeight: 200 },
+  ];
+
+  for (const placement of placements) {
+    await db.advertisementPlacement.upsert({
+      where: { key: placement.key },
+      create: placement,
+      update: placement,
+    });
+  }
+
+  console.log(`Seeded ${placements.length} advertisement placements.`);
+}
+
 async function main() {
   await seedPermissions();
   await seedRoles();
   await seedLanguages();
+  await seedCompanyListingPackages();
+  await seedAdvertisementPlacements();
 }
 
 main()

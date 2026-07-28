@@ -10,6 +10,8 @@ import { AdminSearchInput } from "@/components/admin/search-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/admin/user-avatar";
+import { CsvExportButton } from "@/components/admin/csv-export-button";
+import { exportUsersCsvAction } from "@/features/users/users.actions";
 
 export const metadata: Metadata = { title: "Users" };
 export const dynamic = "force-dynamic";
@@ -78,10 +80,13 @@ export default async function UsersPage({
         title="Users"
         description="Manage administrator and customer accounts."
         actions={
-          <Button render={<Link href="/admin/users/new" />} nativeButton={false}>
-            <Plus className="size-4" />
-            Invite User
-          </Button>
+          <div className="flex gap-2">
+            <CsvExportButton action={exportUsersCsvAction} />
+            <Button render={<Link href="/admin/users/new" />} nativeButton={false}>
+              <Plus className="size-4" />
+              Invite User
+            </Button>
+          </div>
         }
       />
 

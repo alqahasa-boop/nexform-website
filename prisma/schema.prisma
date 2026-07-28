@@ -269,6 +269,13 @@ model User {
   lockedUntil         DateTime?
   deletedAt           DateTime?
 
+  /// 2FA-ready architecture: TOTP (RFC 6238) secret + hashed one-time backup codes.
+  /// `twoFactorSecret` is not yet encrypted at rest — this project has no KMS/encryption-key
+  /// infrastructure configured; documented here as a known follow-up, not an oversight.
+  twoFactorEnabled     Boolean  @default(false)
+  twoFactorSecret      String?
+  twoFactorBackupCodes String[] @default([])
+
   roles UserRole[]
 
   accounts Account[]
@@ -519,6 +526,7 @@ model Style {
 
   designIdeas         DesignIdeaStyle[]
   preferredByRequests DesignRequestStyle[]
+  projects            Project[]
 
   createdAt DateTime @default(now())
 
@@ -910,6 +918,12 @@ model Project {
   location       String?
   areaSqm        Decimal?  @db.Decimal(10, 2)
   completionDate DateTime?
+  clientName     String?
+  videoUrl       String?
+  featured       Boolean   @default(false)
+
+  styleId String?
+  style   Style?  @relation(fields: [styleId], references: [id])
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id])
@@ -934,6 +948,7 @@ model Project {
   @@index([createdById])
   @@index([status, language, visibility])
   @@index([translationGroupId])
+  @@index([featured])
   @@map("projects")
 }
 
@@ -981,6 +996,11 @@ model Service {
   price          Decimal?       @db.Decimal(12, 2)
   isRequestable  Boolean        @default(true)
   order          Int            @default(0)
+
+  icon     String? // lucide-react icon name, e.g. "Compass" — rendered on the public services grid
+  features String[] @default([])
+  ctaLabel String?
+  ctaUrl   String?
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id])
@@ -1123,6 +1143,25 @@ model MediaUsage {
 // COMPANIES DIRECTORY
 // ============================================================================
 
+/// Sellable listing tiers for the Companies Directory (e.g. "Basic", "Featured",
+/// "Premium") — mirrors the AdvertisementPackage pattern already used for ad
+/// campaigns, applied here to directory listing depth/duration instead.
+model CompanyListingPackage {
+  id               String   @id @default(uuid())
+  name             String
+  description      String?
+  durationDays     Int?
+  price            Decimal? @db.Decimal(12, 2)
+  maxFeaturedSlots Int?
+  isActive         Boolean  @default(true)
+
+  companies Company[]
+
+  createdAt DateTime @default(now())
+
+  @@map("company_listing_packages")
+}
+
 model Company {
   id           String  @id @default(uuid())
   name         String
@@ -1142,6 +1181,10 @@ model Company {
   approvalStatus     ApprovalStatus     @default(PENDING)
   featured           Boolean            @default(false)
   isActive           Boolean            @default(true)
+
+  listingPackageId String?
+  listingPackage   CompanyListingPackage? @relation(fields: [listingPackageId], references: [id])
+  packageExpiresAt DateTime?
 
   profileViews   Int @default(0)
   contactClicks  Int @default(0)
@@ -1319,6 +1362,9 @@ model AdvertisementCampaignPlacement {
   campaignId  String
   placementId String
   creativeId  String
+
+  /// Which device classes this booking should render on — empty array means "all devices".
+  deviceTargeting String[] @default([])
 
   campaign  AdvertisementCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   placement AdvertisementPlacement @relation(fields: [placementId], references: [id])

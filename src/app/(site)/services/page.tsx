@@ -18,6 +18,10 @@ export default async function ServicesPage() {
     title: s.title,
     description: s.description ?? "",
     coverImageUrl: s.coverImage?.url ?? null,
+    icon: s.icon,
+    features: s.features,
+    ctaLabel: s.ctaLabel,
+    ctaUrl: s.ctaUrl,
   });
 
   return <ServicesContent services={{ en: en.map(toCard), ar: ar.map(toCard) }} />;

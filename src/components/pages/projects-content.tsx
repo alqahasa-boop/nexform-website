@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Home, Building2, Sofa, LayoutPanelLeft, Castle, type LucideIcon } from "lucide-react";
+import { Home, Building2, Sofa, LayoutPanelLeft, Castle, Star, PlayCircle, type LucideIcon } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { CtaBanner } from "@/components/cta-banner";
 import { useLanguage } from "@/components/language-provider";
@@ -18,6 +18,10 @@ export interface ProjectCard {
   category: string | null;
   location: string | null;
   coverImageUrl: string | null;
+  clientName?: string | null;
+  videoUrl?: string | null;
+  featured?: boolean;
+  style?: string | null;
 }
 
 export function ProjectsContent({ projects }: { projects: { en: ProjectCard[]; ar: ProjectCard[] } }) {
@@ -99,14 +103,35 @@ export function ProjectsContent({ projects }: { projects: { en: ProjectCard[]; a
                           <Building2 className="h-12 w-12 text-gold/50" />
                         </div>
                       )}
+                      {project.featured && (
+                        <span className="absolute top-4 start-4 flex items-center gap-1 rounded-full bg-gold px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-ink">
+                          <Star className="size-3 fill-current" />
+                          Featured
+                        </span>
+                      )}
+                      {project.videoUrl && (
+                        <a
+                          href={project.videoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/20 group-hover:opacity-100"
+                          aria-label="Watch video"
+                        >
+                          <PlayCircle className="size-12 text-white drop-shadow-lg" />
+                        </a>
+                      )}
                     </div>
                     <div className="bg-card p-6">
-                      {project.category && (
-                        <span className="text-xs font-medium uppercase tracking-widest text-gold">{project.category}</span>
-                      )}
+                      <div className="flex items-center justify-between gap-2">
+                        {project.category && (
+                          <span className="text-xs font-medium uppercase tracking-widest text-gold">{project.category}</span>
+                        )}
+                        {project.style && <span className="text-xs text-muted-foreground">{project.style}</span>}
+                      </div>
                       <h3 className="mt-2 text-lg font-semibold">{project.title}</h3>
                       {project.summary && <p className="mt-1 text-sm text-muted-foreground">{project.summary}</p>}
                       {project.location && <p className="mt-1 text-xs text-muted-foreground">{project.location}</p>}
+                      {project.clientName && <p className="mt-1 text-xs text-muted-foreground">Client: {project.clientName}</p>}
                     </div>
                   </motion.div>
                 ))}

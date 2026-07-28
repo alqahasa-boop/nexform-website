@@ -8,6 +8,7 @@ import { DataTable, type DataTableColumn } from "@/components/admin/data-table";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
+import { CampaignRowActions } from "./campaign-row-actions";
 
 export const metadata: Metadata = { title: "Advertisements" };
 export const dynamic = "force-dynamic";
@@ -65,11 +66,7 @@ export default async function AdvertisementsPage() {
         columns={columns}
         rows={campaigns}
         emptyTitle="No campaigns yet"
-        rowActions={(row) => (
-          <Link href={`/admin/advertisements/${row.id}`} className="text-sm font-medium text-primary hover:underline">
-            Manage
-          </Link>
-        )}
+        rowActions={(row) => <CampaignRowActions id={row.id} />}
       />
     </div>
   );

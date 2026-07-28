@@ -19,7 +19,7 @@ export function listProjects(
       where,
       skip,
       take,
-      include: { category: true, coverImage: true },
+      include: { category: true, coverImage: true, style: true },
       orderBy: { createdAt: "desc" },
     });
     return { items, ...meta };
@@ -30,7 +30,7 @@ export function listProjects(
 export function listPublishedProjects(language: string) {
   return db.project.findMany({
     where: { language, status: "PUBLISHED", visibility: "PUBLIC", deletedAt: null },
-    include: { category: true, coverImage: true },
+    include: { category: true, coverImage: true, style: true },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -60,6 +60,14 @@ export function publishProject(id: string) {
 
 export function deleteProject(id: string) {
   return db.project.delete({ where: { id } });
+}
+
+export function bulkPublishProjects(ids: string[]) {
+  return db.project.updateMany({ where: { id: { in: ids } }, data: { status: "PUBLISHED", publishedAt: new Date() } });
+}
+
+export function bulkDeleteProjects(ids: string[]) {
+  return db.project.deleteMany({ where: { id: { in: ids } } });
 }
 
 export function setProjectGallery(projectId: string, items: GalleryItemInput[]) {

@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { verifyPassword } from "./password";
 import { loadUserPermissions } from "./load-permissions";
 import { authConfig } from "./auth.config";
+import { verifyTotpCode } from "./totp";
+import { matchBackupCode } from "./backup-codes";
 import { rateLimit, RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { recordActivity } from "@/features/activity-logs/activity-logs.repository";
 
@@ -19,11 +21,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        code: { label: "Authentication code", type: "text" },
       },
       // Every failure path returns null identically — never reveal *why* a login failed.
       authorize: async (credentials, request) => {
         const email = credentials?.email;
         const password = credentials?.password;
+        const code = credentials?.code;
         if (typeof email !== "string" || typeof password !== "string") return null;
 
         const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -55,6 +59,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             ipAddress: ip,
           });
           return null;
+        }
+
+        if (user.twoFactorEnabled) {
+          const submittedCode = typeof code === "string" ? code : "";
+          const isValidTotp = user.twoFactorSecret ? verifyTotpCode(user.twoFactorSecret, submittedCode) : false;
+          const matchedBackupHash = isValidTotp ? null : await matchBackupCode(submittedCode, user.twoFactorBackupCodes);
+
+          if (!isValidTotp && !matchedBackupHash) {
+            await recordActivity({
+              userId: user.id,
+              action: "LOGIN_FAILED",
+              entityType: "User",
+              entityId: user.id,
+              ipAddress: ip,
+              metadata: { reason: "invalid_2fa_code" },
+            });
+            return null;
+          }
+
+          if (matchedBackupHash) {
+            // One-time use — remove the consumed backup code so it can't be replayed.
+            await db.user.update({
+              where: { id: user.id },
+              data: { twoFactorBackupCodes: user.twoFactorBackupCodes.filter((hash) => hash !== matchedBackupHash) },
+            });
+          }
         }
 
         await db.user.update({

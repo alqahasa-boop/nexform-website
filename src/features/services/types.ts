@@ -11,6 +11,10 @@ export const createServiceSchema = z.object({
   price: z.coerce.number().positive().optional(),
   isRequestable: z.boolean().default(true),
   order: z.number().int().default(0),
+  icon: z.string().max(60).optional(),
+  features: z.array(z.string().max(200)).default([]),
+  ctaLabel: z.string().max(60).optional(),
+  ctaUrl: z.string().url().optional(),
   createdById: z.string().uuid(),
 });
 export type CreateServiceInput = z.infer<typeof createServiceSchema>;

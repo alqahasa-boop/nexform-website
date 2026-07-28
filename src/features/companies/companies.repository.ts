@@ -5,15 +5,24 @@ import type { CreateCompanyInput, UpdateCompanyInput } from "./types";
 export function listCompanies(activeOnly = false) {
   return db.company.findMany({
     where: activeOnly ? { isActive: true, approvalStatus: "APPROVED" } : undefined,
-    include: { logo: true, categories: { include: { category: true } } },
+    include: { logo: true, categories: { include: { category: true } }, listingPackage: true },
     orderBy: { name: "asc" },
   });
+}
+
+export function listListingPackages() {
+  return db.companyListingPackage.findMany({ where: { isActive: true }, orderBy: { name: "asc" } });
 }
 
 export function getCompanyBySlug(slug: string) {
   return db.company.findUnique({
     where: { slug },
-    include: { logo: true, categories: { include: { category: true } }, gallery: { include: { mediaAsset: true } } },
+    include: {
+      logo: true,
+      categories: { include: { category: true } },
+      gallery: { include: { mediaAsset: true } },
+      listingPackage: true,
+    },
   });
 }
 

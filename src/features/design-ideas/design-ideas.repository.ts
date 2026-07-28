@@ -69,6 +69,14 @@ export function deleteDesignIdea(id: string) {
   return db.designIdea.delete({ where: { id } });
 }
 
+export function bulkPublishDesignIdeas(ids: string[]) {
+  return db.designIdea.updateMany({ where: { id: { in: ids } }, data: { status: "PUBLISHED", publishedAt: new Date() } });
+}
+
+export function bulkDeleteDesignIdeas(ids: string[]) {
+  return db.designIdea.deleteMany({ where: { id: { in: ids } } });
+}
+
 export function recordDesignIdeaView(id: string) {
   return db.designIdea.update({ where: { id }, data: { viewCount: { increment: 1 } } });
 }

@@ -24,5 +24,7 @@ export const updateCompanySchema = createCompanySchema.partial().omit({ createdB
   approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
   featured: z.boolean().optional(),
   isActive: z.boolean().optional(),
+  listingPackageId: z.string().uuid().nullable().optional(),
+  packageExpiresAt: z.coerce.date().nullable().optional(),
 });
 export type UpdateCompanyInput = z.infer<typeof updateCompanySchema>;

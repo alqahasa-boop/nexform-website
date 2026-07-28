@@ -47,3 +47,16 @@ export function publishService(id: string) {
 export function deleteService(id: string) {
   return db.service.update({ where: { id }, data: { deletedAt: new Date() } });
 }
+
+/** Persists a new drag-and-drop order — `orderedIds[i]` becomes order `i`. */
+export function reorderServices(orderedIds: string[]) {
+  return db.$transaction(orderedIds.map((id, index) => db.service.update({ where: { id }, data: { order: index } })));
+}
+
+export function bulkPublishServices(ids: string[]) {
+  return db.service.updateMany({ where: { id: { in: ids } }, data: { status: "PUBLISHED" } });
+}
+
+export function bulkDeleteServices(ids: string[]) {
+  return db.service.updateMany({ where: { id: { in: ids } }, data: { deletedAt: new Date() } });
+}

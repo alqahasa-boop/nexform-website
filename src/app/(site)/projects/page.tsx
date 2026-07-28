@@ -19,6 +19,10 @@ export default async function ProjectsPage() {
     category: p.category?.name ?? null,
     location: p.location,
     coverImageUrl: p.coverImage?.url ?? null,
+    clientName: p.clientName,
+    videoUrl: p.videoUrl,
+    featured: p.featured,
+    style: p.style?.name ?? null,
   });
 
   return <ProjectsContent projects={{ en: en.map(toCard), ar: ar.map(toCard) }} />;

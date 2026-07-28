@@ -37,6 +37,7 @@ export function Navbar() {
     { href: "/about", label: t.nav.about },
     { href: "/services", label: t.nav.services },
     { href: "/projects", label: t.nav.projects },
+    { href: "/companies", label: t.nav.companies },
   ];
 
   const knowledgeLinks = [

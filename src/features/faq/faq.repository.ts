@@ -19,3 +19,8 @@ export function updateFaqItem(id: string, input: UpdateFaqItemInput) {
 export function deleteFaqItem(id: string) {
   return db.faqItem.delete({ where: { id } });
 }
+
+/** Persists a new drag-and-drop order — `orderedIds[i]` becomes order `i`. */
+export function reorderFaqItems(orderedIds: string[]) {
+  return db.$transaction(orderedIds.map((id, index) => db.faqItem.update({ where: { id }, data: { order: index } })));
+}

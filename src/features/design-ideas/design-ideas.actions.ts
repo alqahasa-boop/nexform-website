@@ -2,10 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 import { assertPermission, ForbiddenError } from "@/lib/auth/admin-session";
-import { createDesignIdea, updateDesignIdea, publishDesignIdea, deleteDesignIdea } from "./design-ideas.repository";
+import {
+  createDesignIdea,
+  updateDesignIdea,
+  publishDesignIdea,
+  deleteDesignIdea,
+  bulkPublishDesignIdeas,
+  bulkDeleteDesignIdeas,
+} from "./design-ideas.repository";
 import { createDesignIdeaSchema, updateDesignIdeaSchema } from "./types";
 import { sanitizeRichText } from "@/lib/security/sanitize";
 import { recordActivity } from "@/features/activity-logs/activity-logs.repository";
+import { snapshotBeforeUpdate } from "@/features/revisions/revisions.actions";
 import { db } from "@/lib/db";
 import { apiSuccess, apiError, type ApiResult } from "@/types/api";
 
@@ -41,6 +49,7 @@ export async function updateDesignIdeaAction(id: string, input: unknown): Promis
     const parsed = updateDesignIdeaSchema.safeParse(input);
     if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? "Invalid input.", "VALIDATION");
 
+    await snapshotBeforeUpdate("DesignIdea", id, user.id);
     await updateDesignIdea(id, {
       ...parsed.data,
       ...(parsed.data.description && { description: sanitizeRichText(parsed.data.description) }),
@@ -72,6 +81,34 @@ export async function deleteDesignIdeaAction(id: string): Promise<ApiResult<null
     const user = await assertPermission("designIdeas:delete");
     await deleteDesignIdea(id);
     await recordActivity({ userId: user.id, action: "DELETE", entityType: "DesignIdea", entityId: id });
+    revalidatePath("/admin/design-ideas");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function bulkPublishDesignIdeasAction(ids: string[]): Promise<ApiResult<null>> {
+  try {
+    if (ids.length === 0) return apiError("No items selected.", "VALIDATION");
+    const user = await assertPermission("designIdeas:publish");
+    await bulkPublishDesignIdeas(ids);
+    await recordActivity({ userId: user.id, action: "PUBLISH", entityType: "DesignIdea", metadata: { bulk: true, ids } });
+    revalidatePath("/admin/design-ideas");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function bulkDeleteDesignIdeasAction(ids: string[]): Promise<ApiResult<null>> {
+  try {
+    if (ids.length === 0) return apiError("No items selected.", "VALIDATION");
+    const user = await assertPermission("designIdeas:delete");
+    await bulkDeleteDesignIdeas(ids);
+    await recordActivity({ userId: user.id, action: "DELETE", entityType: "DesignIdea", metadata: { bulk: true, ids } });
     revalidatePath("/admin/design-ideas");
     return apiSuccess(null);
   } catch (error) {

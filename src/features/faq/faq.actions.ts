@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { assertPermission, ForbiddenError } from "@/lib/auth/admin-session";
-import { createFaqItem, updateFaqItem, deleteFaqItem } from "./faq.repository";
+import { createFaqItem, updateFaqItem, deleteFaqItem, reorderFaqItems } from "./faq.repository";
 import { createFaqItemSchema, updateFaqItemSchema } from "./types";
 import { recordActivity } from "@/features/activity-logs/activity-logs.repository";
 import { apiSuccess, apiError, type ApiResult } from "@/types/api";
@@ -57,6 +57,19 @@ export async function deleteFaqItemAction(id: string): Promise<ApiResult<null>> 
     const user = await assertPermission("faq:delete");
     await deleteFaqItem(id);
     await recordActivity({ userId: user.id, action: "DELETE", entityType: "FaqItem", entityId: id });
+    revalidatePath("/admin/faq");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function reorderFaqItemsAction(orderedIds: string[]): Promise<ApiResult<null>> {
+  try {
+    const user = await assertPermission("faq:update");
+    await reorderFaqItems(orderedIds);
+    await recordActivity({ userId: user.id, action: "UPDATE", entityType: "FaqItem", metadata: { reordered: true } });
     revalidatePath("/admin/faq");
     return apiSuccess(null);
   } catch (error) {

@@ -40,6 +40,7 @@ export function listActiveAdsForPlacement(placementKey: string) {
       },
     },
     include: { creative: { include: { image: true } }, campaign: { include: { company: true } } },
+    orderBy: [{ campaign: { priority: "desc" } }, { campaign: { createdAt: "desc" } }],
   });
 }
 

@@ -74,7 +74,7 @@ export function GeometricBackground({ variant = "hero" }: { variant?: "hero" | "
           strokeWidth="1"
           fill="none"
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.6, 0.6], cy: [620, 600, 620] }}
+          animate={{ opacity: [0, 0.6, 0.6], y: [0, -20, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         />
       </svg>

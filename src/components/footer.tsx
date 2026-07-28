@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useLanguage } from "@/components/language-provider";
@@ -10,10 +11,12 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   const quickLinks = [
-    { href: "#about", label: t.nav.about },
-    { href: "#services", label: t.nav.services },
-    { href: "#why-us", label: t.nav.whyUs },
-    { href: "#contact", label: t.nav.contact },
+    { href: "/", label: t.nav.home },
+    { href: "/about", label: t.nav.about },
+    { href: "/services", label: t.nav.services },
+    { href: "/projects", label: t.nav.projects },
+    { href: "/knowledge", label: t.nav.knowledge },
+    { href: "/contact", label: t.nav.contact },
   ];
 
   return (
@@ -32,9 +35,9 @@ export function Footer() {
             <ul className="mt-4 flex flex-col gap-3">
               {quickLinks.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="text-sm text-white/60 hover:text-gold transition-colors">
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-gold transition-colors">
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

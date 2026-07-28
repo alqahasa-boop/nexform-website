@@ -1,10 +1,15 @@
 import { db } from "@/lib/db";
 
+export interface DateRange {
+  from: Date;
+  to: Date;
+}
+
 /** Every figure here comes from a real aggregate query — zero rows renders as 0, never a fabricated number. */
-export async function getDashboardStats() {
+export async function getDashboardStats(range: DateRange) {
   const now = new Date();
   const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const windowed = { gte: range.from, lte: range.to };
 
   const [
     pageViews,
@@ -12,8 +17,13 @@ export async function getDashboardStats() {
     customerCount,
     publishedContent,
     draftContent,
+    projectCount,
     designIdeaCount,
+    serviceCount,
+    journeyStepCount,
     libraryFileCount,
+    faqItemCount,
+    mediaFileCount,
     downloadCount,
     companyCount,
     activeAdCampaigns,
@@ -23,10 +33,10 @@ export async function getDashboardStats() {
     contactMessageCount,
     unreadContactMessages,
   ] = await Promise.all([
-    db.analyticsEvent.count({ where: { type: "PAGE_VIEW", createdAt: { gte: thirtyDaysAgo } } }),
+    db.analyticsEvent.count({ where: { type: "PAGE_VIEW", createdAt: windowed } }),
     db.analyticsEvent
       .findMany({
-        where: { type: "PAGE_VIEW", createdAt: { gte: thirtyDaysAgo }, sessionId: { not: null } },
+        where: { type: "PAGE_VIEW", createdAt: windowed, sessionId: { not: null } },
         distinct: ["sessionId"],
         select: { sessionId: true },
       })
@@ -34,9 +44,14 @@ export async function getDashboardStats() {
     db.userRole.count({ where: { role: { key: "CUSTOMER" } } }),
     db.content.count({ where: { status: "PUBLISHED", deletedAt: null } }),
     db.content.count({ where: { status: "DRAFT", deletedAt: null } }),
+    db.project.count({ where: { deletedAt: null } }),
     db.designIdea.count({ where: { deletedAt: null } }),
+    db.service.count({ where: { deletedAt: null } }),
+    db.constructionJourneyStage.count({ where: { deletedAt: null } }),
     db.constructionLibraryItem.count({ where: { deletedAt: null } }),
-    db.analyticsEvent.count({ where: { type: "DOWNLOAD", createdAt: { gte: thirtyDaysAgo } } }),
+    db.faqItem.count({ where: { deletedAt: null } }),
+    db.mediaAsset.count({ where: { deletedAt: null } }),
+    db.analyticsEvent.count({ where: { type: "DOWNLOAD", createdAt: windowed } }),
     db.company.count({ where: { deletedAt: null } }),
     db.advertisementCampaign.count({ where: { status: "ACTIVE" } }),
     db.advertisementCampaign.count({
@@ -54,8 +69,13 @@ export async function getDashboardStats() {
     customerCount,
     publishedContent,
     draftContent,
+    projectCount,
     designIdeaCount,
+    serviceCount,
+    journeyStepCount,
     libraryFileCount,
+    faqItemCount,
+    mediaFileCount,
     downloadCount,
     companyCount,
     activeAdCampaigns,

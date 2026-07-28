@@ -5,6 +5,7 @@ import type { CreateUserInput, UpdateUserInput } from "./types";
 
 export function listUsers(params: PaginationParams & { roleId?: string; search?: string } = {}) {
   const where = {
+    deletedAt: null,
     ...(params.roleId && { roles: { some: { roleId: params.roleId } } }),
     ...(params.search && {
       OR: [

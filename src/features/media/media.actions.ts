@@ -44,8 +44,8 @@ export async function uploadMediaAction(formData: FormData): Promise<ApiResult<U
     const kind = inferKindFromMimeType(file.type);
     if (!kind) return apiError(`File type "${file.type}" is not supported.`, "INVALID_INPUT");
 
-    // Never trust the extension alone — the MIME type + size are validated against the allow-list.
-    const validation = validateUpload({ mimeType: file.type, sizeBytes: file.size, kind });
+    // Never trust the MIME type or extension alone — both must match the allow-list together.
+    const validation = validateUpload({ mimeType: file.type, sizeBytes: file.size, kind, fileName: file.name });
     if (!validation.valid) return apiError(validation.error ?? "Invalid file.", "INVALID_INPUT");
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -107,7 +107,7 @@ export async function deleteMediaAssetAction(id: string): Promise<ApiResult<null
     }
 
     const asset = await deleteMediaAsset(id);
-    await deleteFile(asset.url.replace(/^\/uploads\//, "")).catch(() => undefined);
+    await deleteFile(asset.url).catch(() => undefined);
     await recordActivity({ userId: user.id, action: "DELETE", entityType: "MediaAsset", entityId: id });
     revalidatePath("/admin/media");
 

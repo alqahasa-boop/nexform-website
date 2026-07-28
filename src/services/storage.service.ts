@@ -1,13 +1,14 @@
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
+import { put, del } from "@vercel/blob";
 import { sanitizeFileName } from "@/lib/security/file-validation";
 
 /**
- * Provider-agnostic file storage. No provider is chosen yet — Phase 2 picks
- * S3 / Supabase Storage / R2 / etc. The `StorageDriver` interface is what
- * every upload flow (media library, articles, library files) codes against,
- * so switching providers later never touches call sites.
+ * Provider-agnostic file storage. `driver` is picked once at module load based on
+ * environment (see bottom of file) so every upload flow (media library, articles,
+ * library files) codes against the same `StorageDriver` interface regardless of
+ * which backend is actually storing the bytes.
  */
 export interface UploadInput {
   buffer: Buffer;
@@ -25,7 +26,11 @@ export interface StorageDriver {
   delete(path: string): Promise<void>;
 }
 
-/** Default driver for local development — writes to /public/uploads. Not suitable for production (ephemeral filesystems). */
+/**
+ * Local-disk driver — writes to /public/uploads. Only suitable for local development:
+ * Vercel's serverless filesystem is read-only outside of /tmp and is wiped on every
+ * cold start/redeploy, so files written here never survive in production.
+ */
 class LocalDiskStorageDriver implements StorageDriver {
   private readonly uploadsDir = join(process.cwd(), "public", "uploads");
 
@@ -39,15 +44,41 @@ class LocalDiskStorageDriver implements StorageDriver {
     return { url: `/uploads/${uniqueName}`, path: uniqueName };
   }
 
-  async delete(path: string): Promise<void> {
+  async delete(url: string): Promise<void> {
     const { unlink } = await import("fs/promises");
-    await unlink(join(this.uploadsDir, path)).catch(() => undefined);
+    const fileName = url.replace(/^\/uploads\//, "");
+    await unlink(join(this.uploadsDir, fileName)).catch(() => undefined);
   }
 }
 
-let driver: StorageDriver = new LocalDiskStorageDriver();
+/**
+ * Vercel Blob driver — persistent, CDN-backed storage that survives redeploys and
+ * cold starts. Requires `BLOB_READ_WRITE_TOKEN`, which Vercel injects automatically
+ * once a Blob store is created and linked to the project (`vercel blob create-store`).
+ */
+class VercelBlobStorageDriver implements StorageDriver {
+  async upload({ buffer, fileName }: UploadInput): Promise<UploadResult> {
+    const safeName = sanitizeFileName(fileName);
+    const uniqueName = `${randomUUID()}-${safeName}`;
 
-/** Phase 2: call this once at startup with a real driver (e.g. an S3-backed implementation). */
+    const blob = await put(`uploads/${uniqueName}`, buffer, {
+      access: "public",
+      addRandomSuffix: false,
+    });
+
+    return { url: blob.url, path: blob.pathname };
+  }
+
+  async delete(url: string): Promise<void> {
+    await del(url).catch(() => undefined);
+  }
+}
+
+let driver: StorageDriver = process.env.BLOB_READ_WRITE_TOKEN
+  ? new VercelBlobStorageDriver()
+  : new LocalDiskStorageDriver();
+
+/** Mainly for tests — swap the active driver at runtime. */
 export function setStorageDriver(nextDriver: StorageDriver) {
   driver = nextDriver;
 }
@@ -56,6 +87,7 @@ export function uploadFile(input: UploadInput): Promise<UploadResult> {
   return driver.upload(input);
 }
 
-export function deleteFile(path: string): Promise<void> {
-  return driver.delete(path);
+/** Pass the asset's stored `url` — each driver knows how to translate that into its own delete call. */
+export function deleteFile(url: string): Promise<void> {
+  return driver.delete(url);
 }

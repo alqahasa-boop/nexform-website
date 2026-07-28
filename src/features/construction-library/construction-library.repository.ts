@@ -14,6 +14,16 @@ export function listLibraryCategories(language = "en") {
   });
 }
 
+/** Public-facing accessor — categories with at least one published document, with an accurate published count. */
+export async function listPublishedLibraryCategories(language = "en") {
+  const categories = await db.constructionLibraryCategory.findMany({
+    where: { language },
+    orderBy: { order: "asc" },
+    include: { _count: { select: { items: { where: { status: "PUBLISHED", visibility: "PUBLIC" } } } } },
+  });
+  return categories.filter((c) => c._count.items > 0);
+}
+
 export function createLibraryCategory(input: CreateLibraryCategoryInput) {
   return db.constructionLibraryCategory.create({ data: input });
 }

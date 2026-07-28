@@ -6,9 +6,16 @@ import { Accordion } from "@/components/accordion";
 import { CtaBanner } from "@/components/cta-banner";
 import { useLanguage } from "@/components/language-provider";
 
-export function FaqContent() {
-  const { t } = useLanguage();
+export interface FaqItemData {
+  question: string;
+  answer: string;
+}
+
+export function FaqContent({ faqItems }: { faqItems: { en: FaqItemData[]; ar: FaqItemData[] } }) {
+  const { language, t } = useLanguage();
   const p = t.faqPage;
+  const published = faqItems[language];
+  const items = published.length > 0 ? published : p.items;
 
   return (
     <>
@@ -18,7 +25,7 @@ export function FaqContent() {
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <SectionHeading eyebrow={p.eyebrow} title={p.title} />
           <div className="mt-16">
-            <Accordion items={p.items} />
+            <Accordion items={items} />
           </div>
         </div>
       </section>

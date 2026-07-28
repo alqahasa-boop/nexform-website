@@ -3,7 +3,7 @@ import { buildPagination, type PaginationParams } from "@/types/api";
 import type { CreateServiceInput, UpdateServiceInput } from "./types";
 
 export function listServices(params: PaginationParams & { language?: string } = {}) {
-  const where = { ...(params.language && { language: params.language }) };
+  const where = { deletedAt: null, ...(params.language && { language: params.language }) };
 
   return db.$transaction(async (tx) => {
     const total = await tx.service.count({ where });
@@ -16,6 +16,15 @@ export function listServices(params: PaginationParams & { language?: string } = 
       orderBy: { order: "asc" },
     });
     return { items, ...meta };
+  });
+}
+
+/** Public-facing accessor — only published, publicly-visible, non-deleted rows, in display order. */
+export function listPublishedServices(language: string) {
+  return db.service.findMany({
+    where: { language, status: "PUBLISHED", visibility: "PUBLIC", deletedAt: null },
+    include: { coverImage: true },
+    orderBy: { order: "asc" },
   });
 }
 

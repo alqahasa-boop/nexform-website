@@ -11,16 +11,22 @@ import {
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { StatCard } from "@/components/admin/stat-card";
 import { EmptyState } from "@/components/admin/empty-state";
+import { DateRangeFilter, resolveDateRange } from "@/components/admin/date-range-filter";
 import { Eye, Users, Download, MousePointerClick, MessageSquare, Search } from "lucide-react";
 import { BarChart3 } from "lucide-react";
 
 export const metadata: Metadata = { title: "Analytics" };
 export const dynamic = "force-dynamic";
 
-export default async function AnalyticsPage() {
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string; from?: string; to?: string }>;
+}) {
   await requirePermission("analytics:view");
 
-  const range = { from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), to: new Date() };
+  const params = await searchParams;
+  const range = resolveDateRange(params);
 
   const [
     pageViews,
@@ -50,7 +56,11 @@ export default async function AnalyticsPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Analytics" description="Site traffic and engagement over the last 30 days." />
+      <AdminPageHeader
+        title="Analytics"
+        description="Site traffic and engagement for the selected date range."
+        actions={<DateRangeFilter />}
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard label="Page Views" value={pageViews} icon={Eye} />

@@ -26,6 +26,15 @@ export function listProjects(
   });
 }
 
+/** Public-facing accessor — only published, publicly-visible, non-deleted rows. */
+export function listPublishedProjects(language: string) {
+  return db.project.findMany({
+    where: { language, status: "PUBLISHED", visibility: "PUBLIC", deletedAt: null },
+    include: { category: true, coverImage: true },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export function getProjectBySlug(language: string, slug: string) {
   return db.project.findUnique({
     where: { language_slug: { language, slug } },

@@ -20,9 +20,17 @@ import { useLanguage } from "@/components/language-provider";
 
 const ICONS: LucideIcon[] = [MapPin, ClipboardList, Compass, FileCheck, Users, HardHat, PaintRoller, KeyRound];
 
-export function BuildJourneyContent() {
-  const { t } = useLanguage();
+export interface JourneyStepData {
+  title: string;
+  description: string;
+}
+
+export function BuildJourneyContent({ steps }: { steps: { en: JourneyStepData[]; ar: JourneyStepData[] } }) {
+  const { language, t } = useLanguage();
   const p = t.buildJourneyPage;
+  const published = steps[language];
+  const isFromCms = published.length > 0;
+  const visibleSteps = isFromCms ? published : p.steps;
   const timelineRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: timelineRef,
@@ -43,11 +51,11 @@ export function BuildJourneyContent() {
             <motion.div style={{ height: lineHeight }} className="absolute start-6 top-0 w-px bg-gold" />
 
             <div className="flex flex-col gap-12">
-              {p.steps.map((step, i) => {
-                const Icon = ICONS[i];
+              {visibleSteps.map((step, i) => {
+                const Icon = ICONS[i % ICONS.length]!;
                 return (
                   <motion.div
-                    key={step.title}
+                    key={`${step.title}-${i}`}
                     initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-60px" }}
@@ -62,7 +70,14 @@ export function BuildJourneyContent() {
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <h3 className="mt-1 text-lg font-semibold">{step.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
+                      {isFromCms ? (
+                        <div
+                          className="prose prose-sm dark:prose-invert mt-2 max-w-none text-muted-foreground"
+                          dangerouslySetInnerHTML={{ __html: step.description }}
+                        />
+                      ) : (
+                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
+                      )}
                     </div>
                   </motion.div>
                 );
@@ -70,7 +85,7 @@ export function BuildJourneyContent() {
             </div>
           </div>
 
-          <p className="mt-16 text-center text-sm text-muted-foreground">{p.comingSoon}</p>
+          {!isFromCms && <p className="mt-16 text-center text-sm text-muted-foreground">{p.comingSoon}</p>}
         </div>
       </section>
 

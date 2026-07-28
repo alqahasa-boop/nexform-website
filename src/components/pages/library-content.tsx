@@ -19,9 +19,18 @@ import { useLanguage } from "@/components/language-provider";
 
 const ICONS: LucideIcon[] = [Wallet, Landmark, BookOpen, FileText, FileType, FileImage, PenTool, ListChecks];
 
-export function LibraryContent() {
-  const { t } = useLanguage();
+export interface LibraryCategoryData {
+  title: string;
+  description: string;
+  count: number;
+}
+
+export function LibraryContent({ categories }: { categories: { en: LibraryCategoryData[]; ar: LibraryCategoryData[] } }) {
+  const { language, t } = useLanguage();
   const p = t.libraryPage;
+  const published = categories[language];
+  const isFromCms = published.length > 0;
+  const visible = isFromCms ? published : p.categories.map((c) => ({ ...c, count: 0 }));
 
   return (
     <>
@@ -31,13 +40,13 @@ export function LibraryContent() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading eyebrow={p.eyebrow} title={p.title} />
           <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {p.categories.map((category, i) => (
+            {visible.map((category, i) => (
               <IconCard
                 key={category.title}
-                icon={ICONS[i]}
+                icon={ICONS[i % ICONS.length]}
                 title={category.title}
                 description={category.description}
-                badge={p.comingSoon}
+                badge={isFromCms ? `${category.count}` : p.comingSoon}
                 delay={(i % 4) * 0.08}
               />
             ))}

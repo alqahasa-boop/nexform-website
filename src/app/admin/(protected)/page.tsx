@@ -5,14 +5,20 @@ import {
   Users,
   FileText,
   FilePenLine,
+  Building2,
   Sparkles,
+  Wrench,
+  Route,
   Library,
+  HelpCircle,
+  ImageIcon,
   Download,
   Building,
   Megaphone,
   AlarmClock,
   ClipboardList,
   Mail,
+  Plus,
 } from "lucide-react";
 import {
   getDashboardStats,
@@ -25,14 +31,23 @@ import { StatCard } from "@/components/admin/stat-card";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/admin/empty-state";
 import { ActivityTimeline } from "@/components/admin/activity-timeline";
+import { DateRangeFilter, resolveDateRange } from "@/components/admin/date-range-filter";
+import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string; from?: string; to?: string }>;
+}) {
+  const params = await searchParams;
+  const range = resolveDateRange(params);
+
   const [stats, recentRequests, recentMessages, recentActivity] = await Promise.all([
-    getDashboardStats(),
+    getDashboardStats(range),
     getRecentDesignRequests(),
     getRecentContactMessages(),
     getRecentActivity(),
@@ -40,17 +55,41 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Dashboard" description="An overview of NEXFORM's website activity." />
+      <AdminPageHeader
+        title="Dashboard"
+        description="An overview of NEXFORM's website activity."
+        actions={<DateRangeFilter />}
+      />
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        <Button size="sm" render={<Link href="/admin/content/new" />} nativeButton={false}>
+          <Plus className="size-4" />
+          New Content
+        </Button>
+        <Button size="sm" variant="outline" render={<Link href="/admin/projects" />} nativeButton={false}>
+          <Plus className="size-4" />
+          New Project
+        </Button>
+        <Button size="sm" variant="outline" render={<Link href="/admin/media" />} nativeButton={false}>
+          <Plus className="size-4" />
+          Upload Media
+        </Button>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        <StatCard label="Page Views (30d)" value={stats.pageViews} icon={Eye} />
-        <StatCard label="Unique Visitors (30d)" value={stats.uniqueSessions} icon={Users} />
+        <StatCard label="Page Views" value={stats.pageViews} icon={Eye} hint="selected range" />
+        <StatCard label="Unique Visitors" value={stats.uniqueSessions} icon={Users} hint="selected range" />
         <StatCard label="Registered Customers" value={stats.customerCount} icon={Users} />
         <StatCard label="Published Content" value={stats.publishedContent} icon={FileText} tone="success" />
         <StatCard label="Draft Content" value={stats.draftContent} icon={FilePenLine} />
+        <StatCard label="Projects" value={stats.projectCount} icon={Building2} />
         <StatCard label="Design Ideas" value={stats.designIdeaCount} icon={Sparkles} />
+        <StatCard label="Services" value={stats.serviceCount} icon={Wrench} />
+        <StatCard label="Journey Steps" value={stats.journeyStepCount} icon={Route} />
         <StatCard label="Library Files" value={stats.libraryFileCount} icon={Library} />
-        <StatCard label="Downloads (30d)" value={stats.downloadCount} icon={Download} />
+        <StatCard label="FAQ Items" value={stats.faqItemCount} icon={HelpCircle} />
+        <StatCard label="Media Files" value={stats.mediaFileCount} icon={ImageIcon} />
+        <StatCard label="Downloads" value={stats.downloadCount} icon={Download} hint="selected range" />
         <StatCard label="Companies" value={stats.companyCount} icon={Building} />
         <StatCard label="Active Advertisements" value={stats.activeAdCampaigns} icon={Megaphone} tone="success" />
         <StatCard

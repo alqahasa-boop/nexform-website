@@ -1,18 +1,58 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { assertPermission, ForbiddenError } from "@/lib/auth/admin-session";
+import { headers } from "next/headers";
+import { assertPermission, ForbiddenError, getAdminSession } from "@/lib/auth/admin-session";
 import type { DesignRequestStatus } from "@/generated/prisma/client";
 import {
+  createDesignRequest,
   updateDesignRequestStatus,
   updateDesignRequest,
   addDesignRequestMessage,
   listDesignRequests,
 } from "./design-requests.repository";
+import { createDesignRequestSchema } from "./types";
 import { recordActivity } from "@/features/activity-logs/activity-logs.repository";
 import { dispatchNotification } from "@/services/notification-dispatch.service";
+import { rateLimit, RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
 import { toCsv } from "@/lib/csv";
 import { apiSuccess, apiError, type ApiResult } from "@/types/api";
+
+/**
+ * Public entry point for the "request a quotation / contact an engineering office"
+ * flow — the structured DesignRequest workflow the admin dashboard already fully
+ * manages had no public submission path until now (only an admin-side repository
+ * function existed). This is what any "connect with an engineering office" call to
+ * action — AI-driven or not — should submit to, instead of a generic contact form,
+ * so the office gets the structured service/budget/style/measurements context.
+ */
+export async function createDesignRequestAction(input: unknown): Promise<ApiResult<{ requestNumber: string }>> {
+  const session = await getAdminSession();
+
+  let rateKey = `design-request:user:${session?.id}`;
+  if (!session) {
+    const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    rateKey = `design-request:ip:${ip}`;
+  }
+  const { allowed } = rateLimit({ key: rateKey, ...RATE_LIMIT_PRESETS.designRequestForm });
+  if (!allowed) return apiError("Too many requests submitted — please wait a while and try again.", "RATE_LIMITED");
+
+  const parsed = createDesignRequestSchema.safeParse(input);
+  if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? "Invalid input.", "VALIDATION");
+
+  const request = await createDesignRequest({ ...parsed.data, customerId: session?.id ?? parsed.data.customerId });
+  await recordActivity({
+    userId: session?.id,
+    action: "CREATE",
+    entityType: "DesignRequest",
+    entityId: request.id,
+    metadata: { source: "public", requestNumber: request.requestNumber },
+  });
+  revalidatePath("/admin/design-requests");
+  revalidatePath("/admin");
+
+  return apiSuccess({ requestNumber: request.requestNumber });
+}
 
 export async function changeDesignRequestStatusAction(id: string, status: DesignRequestStatus, note?: string): Promise<ApiResult<null>> {
   try {

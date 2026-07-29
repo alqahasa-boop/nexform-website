@@ -27,6 +27,7 @@ export const PERMISSION_MODULES = [
   "seo",
   "designRequests",
   "contactMessages",
+  "ai",
 ] as const;
 
 export type PermissionModule = (typeof PERMISSION_MODULES)[number];
@@ -58,6 +59,7 @@ export const MODULE_PERMISSIONS: Record<PermissionModule, PermissionAction[]> = 
   seo: ["view", "manage"],
   designRequests: ["view", "update", "manage", "assign"],
   contactMessages: ["view", "update", "manage"],
+  ai: ["view", "manage"],
 };
 
 export function listAllPermissionKeys(): PermissionKey[] {
@@ -131,7 +133,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Exclude<SystemRoleKey, "SUPER_ADMI
     "media:create",
     "analytics:view",
   ],
-  ANALYST: ["dashboard:view", "analytics:view", "activityLogs:view"],
+  ANALYST: ["dashboard:view", "analytics:view", "activityLogs:view", "ai:view"],
   ADMIN: [
     ...PERMISSION_MODULES.flatMap(
       (mod) => MODULE_PERMISSIONS[mod].map((action) => `${mod}:${action}` as PermissionKey)

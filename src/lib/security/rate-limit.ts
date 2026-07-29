@@ -51,4 +51,10 @@ export const RATE_LIMIT_PRESETS = {
   contactForm: { limit: 5, windowMs: 60 * 60 * 1000 },
   designRequestForm: { limit: 5, windowMs: 60 * 60 * 1000 },
   upload: { limit: 30, windowMs: 60 * 1000 },
+  // AI presets are deliberately tighter than the general `upload` preset — every
+  // AI call has a real per-request cost against the configured provider.
+  aiChat: { limit: 20, windowMs: 5 * 60 * 1000 },
+  aiVision: { limit: 10, windowMs: 5 * 60 * 1000 },
+  aiDocumentUpload: { limit: 10, windowMs: 10 * 60 * 1000 },
+  aiSearch: { limit: 30, windowMs: 60 * 1000 },
 } as const;

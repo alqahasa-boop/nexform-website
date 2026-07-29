@@ -106,4 +106,5 @@ export const ADMIN_MODULES: AdminModuleConfig[] = [
   { id: "languages", label: "Languages", path: "/admin/languages", permissionModule: "languages", group: "system" },
   { id: "seo", label: "SEO", path: "/admin/seo", permissionModule: "seo", group: "system" },
   { id: "settings", label: "Settings", path: "/admin/settings", permissionModule: "settings", group: "system" },
+  { id: "ai", label: "AI Management", path: "/admin/ai", permissionModule: "ai", group: "system" },
 ];

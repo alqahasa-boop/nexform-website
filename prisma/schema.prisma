@@ -308,6 +308,11 @@ model User {
   approvedCampaigns    AdvertisementCampaign[]      @relation("CampaignApprovedBy")
   contentRevisions     ContentRevision[]
 
+  aiConversations AiConversation[]
+  aiUploadedFiles AiUploadedFile[]
+  aiWorkspace     AiUserWorkspace?
+  aiPromptLogs    AiPromptLog[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1735,4 +1740,226 @@ model AnalyticsEvent {
   @@index([sessionId])
   @@index([entityType, entityId])
   @@map("analytics_events")
+}
+
+// ============================================================================
+// AI FOUNDATION (Phase 6A) — provider-agnostic gateway, conversations, uploads,
+// per-user workspace, knowledge index, and admin observability.
+//
+// PROVIDER ABSTRACTION
+//   Nothing here stores a single provider's response shape directly — `model`
+//   and `providerKey` are recorded per message/log row so a conversation can
+//   legitimately span providers (e.g. switched after an outage) without a
+//   schema change. See `AiProviderKey`.
+//
+// EMBEDDINGS
+//   `AiKnowledgeChunk.embedding` stores a plain `Json` float array rather than
+//   a native pgvector column. This project's Postgres (Neon) is not guaranteed
+//   to have the `vector` extension enabled, and gating a migration on that
+//   would risk failing in an environment where it isn't available. Cosine
+//   similarity is computed in application code — fine at this content volume;
+//   documented here as the first thing to revisit if the knowledge base grows
+//   large enough that in-process scoring becomes the bottleneck.
+//
+// GUEST VS. REGISTERED USERS
+//   `userId` is optional and `guestSessionId` (a cookie-scoped random ID)
+//   stands in for anonymous visitors — see the Phase 6A completion report for
+//   why persistent cross-device "AI Workspace" memory is scoped to registered
+//   users only: this codebase has no public customer signup/login flow yet,
+//   so guests get ephemeral, session-scoped conversations today.
+// ============================================================================
+
+enum AiModuleKey {
+  GENERAL_CHAT
+  CONSTRUCTION_ADVISOR
+  BUILD_JOURNEY_ASSISTANT
+  DOCUMENT_AI
+  IMAGE_AI
+  KNOWLEDGE_SEARCH
+}
+
+enum AiMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum AiFileKind {
+  DOCUMENT
+  IMAGE
+}
+
+enum AiAnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETE
+  FAILED
+  NOT_CONFIGURED
+}
+
+enum AiProviderKey {
+  OPENAI
+  ANTHROPIC
+}
+
+model AiConversation {
+  id             String      @id @default(uuid())
+  userId         String?
+  guestSessionId String?
+  module         AiModuleKey
+  title          String?
+  language       String      @default("en")
+
+  user          User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages      AiMessage[]
+  uploadedFiles AiUploadedFile[]
+
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([guestSessionId])
+  @@index([module])
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id             String         @id @default(uuid())
+  conversationId String
+  role           AiMessageRole
+  content        String         @db.Text
+  attachments    Json?
+  providerKey    AiProviderKey?
+  model          String?
+  tokensIn       Int?
+  tokensOut      Int?
+
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId])
+  @@map("ai_messages")
+}
+
+/// Independent of `MediaAsset` (the CMS media library) on purpose — these are
+/// visitor-facing uploads (guests included) that must never require the
+/// admin-only `media:create` permission, and never appear in the CMS library.
+model AiUploadedFile {
+  id             String           @id @default(uuid())
+  userId         String?
+  guestSessionId String?
+  conversationId String?
+  kind           AiFileKind
+  fileName       String
+  url            String
+  mimeType       String
+  sizeBytes      Int
+  extractedText  String?          @db.Text
+  analysisStatus AiAnalysisStatus @default(PENDING)
+  analysisResult Json?
+  analysisError  String?
+
+  user         User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation AiConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([conversationId])
+  @@map("ai_uploaded_files")
+}
+
+/// The "AI Workspace" — one per registered user. See schema-level note on why
+/// guests don't get one of these (no persistent identity to attach it to).
+model AiUserWorkspace {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  favoriteStyles    String[] @default([])
+  constructionStage String?
+  budgetMin         Decimal? @db.Decimal(12, 2)
+  budgetMax         Decimal? @db.Decimal(12, 2)
+  ideas             String?  @db.Text
+  preferences       Json?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ai_user_workspaces")
+}
+
+/// Chunked, indexed text pulled from existing CMS entities (Content, Project,
+/// Service, FaqItem, ConstructionLibraryItem, ConstructionJourneyStage,
+/// Company) for retrieval-augmented answers — the knowledge engine answers
+/// from this table first, never inventing engineering facts. Populated by an
+/// admin-triggered reindex job, not automatically on every publish (see
+/// completion report for why).
+model AiKnowledgeChunk {
+  id             String  @id @default(uuid())
+  entityType     String
+  entityId       String
+  language       String
+  chunkIndex     Int
+  content        String  @db.Text
+  embedding      Json?
+  embeddingModel String?
+
+  indexedAt DateTime @default(now())
+
+  @@unique([entityType, entityId, language, chunkIndex])
+  @@index([entityType, entityId])
+  @@map("ai_knowledge_chunks")
+}
+
+model AiSearchCache {
+  id          String @id @default(uuid())
+  queryHash   String @unique
+  query       String
+  language    String
+  resultsJson Json
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@map("ai_search_cache")
+}
+
+/// Never stores full prompt/response bodies — `promptPreview` is truncated,
+/// for admin observability (usage, latency, error rate), not conversation
+/// replay (that's what `AiMessage` is for, access-controlled to the owner).
+model AiPromptLog {
+  id             String         @id @default(uuid())
+  userId         String?
+  guestSessionId String?
+  module         AiModuleKey
+  providerKey    AiProviderKey?
+  model          String?
+  promptPreview  String?
+  tokensIn       Int?
+  tokensOut      Int?
+  latencyMs      Int?
+  success        Boolean
+  errorMessage   String?
+
+  user User? @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([module])
+  @@index([createdAt])
+  @@map("ai_prompt_logs")
+}
+
+model AiModuleSetting {
+  id        String      @id @default(uuid())
+  module    AiModuleKey @unique
+  isEnabled Boolean     @default(true)
+  config    Json?
+
+  updatedAt DateTime @updatedAt
+
+  @@map("ai_module_settings")
 }

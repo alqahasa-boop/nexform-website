@@ -24,6 +24,7 @@ import {
   Languages,
   Search,
   Settings,
+  Bot,
 } from "lucide-react";
 import {
   ADMIN_MODULES,
@@ -58,6 +59,7 @@ const MODULE_ICONS: Record<string, React.ComponentType<{ className?: string }>> 
   languages: Languages,
   seo: Search,
   settings: Settings,
+  ai: Bot,
 };
 
 const GROUP_ORDER: AdminModuleGroup[] = ["overview", "content", "business", "people", "insights", "system"];

@@ -28,6 +28,7 @@ export const adminTranslations = {
       languages: "Languages",
       seo: "SEO",
       settings: "Settings",
+      ai: "AI Management",
     },
     common: {
       search: "Search…",
@@ -128,6 +129,7 @@ export const adminTranslations = {
       languages: "اللغات",
       seo: "تحسين محركات البحث",
       settings: "الإعدادات",
+      ai: "إدارة الذكاء الاصطناعي",
     },
     common: {
       search: "بحث…",

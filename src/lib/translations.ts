@@ -224,6 +224,16 @@ export const translations = {
       emptyState: "No projects in this category yet — check back soon.",
     },
 
+    galleryPage: {
+      heroEyebrow: "Inspiration",
+      heroTitle: "Design Gallery",
+      heroSubtitle: "Real interior and exterior concepts from NEXFORM's design library — a starting point, not a finished plan.",
+      allLabel: "All",
+      comingSoon: "Coming Soon",
+      placeholderTitle: "Idea Coming Soon",
+      emptyState: "No gallery items in this category yet — check back soon.",
+    },
+
     companiesPage: {
       heroEyebrow: "Trusted Partners",
       heroTitle: "Companies Directory",
@@ -577,6 +587,16 @@ export const translations = {
       comingSoon: "قريباً",
       placeholderTitle: "المشروع قريباً",
       emptyState: "لا توجد مشاريع بهذا التصنيف بعد — تابعونا قريباً.",
+    },
+
+    galleryPage: {
+      heroEyebrow: "إلهام",
+      heroTitle: "معرض التصاميم",
+      heroSubtitle: "أفكار داخلية وخارجية حقيقية من مكتبة تصاميم نكسفورم — نقطة انطلاق، وليست مخططاً نهائياً.",
+      allLabel: "الكل",
+      comingSoon: "قريباً",
+      placeholderTitle: "فكرة قريباً",
+      emptyState: "لا توجد عناصر بهذا التصنيف بعد — تابعونا قريباً.",
     },
 
     companiesPage: {

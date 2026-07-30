@@ -6,19 +6,12 @@ import { listModuleSettings } from "@/features/ai/settings/settings.repository";
 import { getUsageStats, listRecentErrors } from "@/features/ai/logs/ai-logs.repository";
 import { countIndexedChunks, countIndexedChunksByType, getLastIndexedAt } from "@/features/ai/knowledge/knowledge.repository";
 import { AiAdminPanel } from "./ai-admin-panel";
-import type { AiModuleKey } from "@/generated/prisma/client";
+import { AiModuleKey } from "@/generated/prisma/client";
 
 export const metadata: Metadata = { title: "AI Management" };
 export const dynamic = "force-dynamic";
 
-const ALL_MODULES: AiModuleKey[] = [
-  "GENERAL_CHAT",
-  "CONSTRUCTION_ADVISOR",
-  "BUILD_JOURNEY_ASSISTANT",
-  "DOCUMENT_AI",
-  "IMAGE_AI",
-  "KNOWLEDGE_SEARCH",
-];
+const ALL_MODULES = Object.values(AiModuleKey);
 
 export default async function AiAdminPage() {
   await requirePermission("ai:view");

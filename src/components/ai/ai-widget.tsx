@@ -17,6 +17,7 @@ import { uploadDocumentAction, analyzeDocumentAction } from "@/features/ai/docum
 import { uploadImageForAnalysisAction, analyzeImageAction } from "@/features/ai/images/images.actions";
 import { aiSearchAction, type AiSearchResultItem } from "@/features/ai/search/search.actions";
 import { QuoteRequestDialog } from "@/components/quote-request-dialog";
+import { useAiWidget } from "@/components/ai/ai-widget-provider";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -41,6 +42,9 @@ const COPY = {
     uploadImage: "Analyze an image",
     disclaimer: "AI assistance only — not a substitute for a licensed engineer.",
     analyzing: "Analyzing…",
+    recommendedServices: "Related services",
+    recommendedCompanies: "Recommended offices",
+    relatedArticles: "Related articles",
   },
   ar: {
     launcherLabel: "افتح مساعد نكسفورم الذكي",
@@ -59,6 +63,9 @@ const COPY = {
     uploadImage: "تحليل صورة",
     disclaimer: "مساعدة ذكاء اصطناعي فقط — لا تغني عن مهندس مرخّص.",
     analyzing: "جارٍ التحليل…",
+    recommendedServices: "خدمات ذات صلة",
+    recommendedCompanies: "مكاتب موصى بها",
+    relatedArticles: "مقالات ذات صلة",
   },
 };
 
@@ -81,10 +88,20 @@ export function AiWidget() {
   const docInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { request, clearRequest } = useAiWidget();
 
   useEffect(() => {
     if (pathname?.startsWith("/knowledge/build-journey")) setModule("BUILD_JOURNEY_ASSISTANT");
   }, [pathname]);
+
+  useEffect(() => {
+    if (!request) return;
+    setOpen(true);
+    setMode(request.mode ?? "chat");
+    if (request.module) setModule(request.module);
+    if (request.prefillMessage) setInput(request.prefillMessage);
+    clearRequest();
+  }, [request, clearRequest]);
 
   useEffect(() => {
     if (open && configured === null) {
@@ -152,6 +169,10 @@ export function AiWidget() {
       const analysis = await analyzeDocumentAction(uploadResult.data.id, "Summarize this document.", language);
       if (analysis.success && analysis.data.response) {
         setMessages((prev) => [...prev, { role: "assistant", content: analysis.data.response! }]);
+        if (analysis.data.relatedArticles.length > 0) {
+          const list = analysis.data.relatedArticles.map((a) => a.title).join(", ");
+          setMessages((prev) => [...prev, { role: "system", content: `${t.relatedArticles}: ${list}` }]);
+        }
       } else if (analysis.success) {
         setConfigured(false);
         setMessages((prev) => [...prev, { role: "system", content: t.notConfigured }]);
@@ -179,6 +200,13 @@ export function AiWidget() {
       const analysis = await analyzeImageAction(uploadResult.data.id, "", language);
       if (analysis.success && analysis.data.response) {
         setMessages((prev) => [...prev, { role: "assistant", content: analysis.data.response! }]);
+        const { recommendedServices, recommendedCompanies } = analysis.data;
+        if (recommendedServices.length > 0 || recommendedCompanies.length > 0) {
+          const parts: string[] = [];
+          if (recommendedServices.length > 0) parts.push(`${t.recommendedServices}: ${recommendedServices.map((s) => s.title).join(", ")}`);
+          if (recommendedCompanies.length > 0) parts.push(`${t.recommendedCompanies}: ${recommendedCompanies.map((c) => c.name).join(", ")}`);
+          setMessages((prev) => [...prev, { role: "system", content: parts.join("\n") }]);
+        }
       } else if (analysis.success) {
         setConfigured(false);
         setMessages((prev) => [...prev, { role: "system", content: t.notConfigured }]);

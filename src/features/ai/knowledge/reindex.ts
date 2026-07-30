@@ -102,6 +102,21 @@ async function reindexConstructionJourney(): Promise<number> {
   return total;
 }
 
+async function reindexDesignIdeas(): Promise<number> {
+  const rows = await db.designIdea.findMany({
+    where: { status: "PUBLISHED", visibility: "PUBLIC", deletedAt: null },
+    include: { styles: { include: { style: true } } },
+  });
+  let total = 0;
+  for (const row of rows) {
+    const text = [row.title, row.description && stripHtml(row.description), row.roomType, row.styles.map((s) => s.style.name).join(", ")]
+      .filter(Boolean)
+      .join("\n\n");
+    total += await indexEntity("DesignIdea", row.id, row.language, text);
+  }
+  return total;
+}
+
 async function reindexCompanies(): Promise<number> {
   const rows = await db.company.findMany({ where: { approvalStatus: "APPROVED", isActive: true, deletedAt: null } });
   let total = 0;
@@ -134,6 +149,7 @@ export async function reindexAll(): Promise<ReindexResult> {
     ConstructionLibraryItem: await reindexConstructionLibrary(),
     ConstructionJourneyStage: await reindexConstructionJourney(),
     Company: await reindexCompanies(),
+    DesignIdea: await reindexDesignIdeas(),
   };
 
   let embeddingsGenerated = 0;

@@ -26,6 +26,68 @@ export function listDesignIdeas(
   });
 }
 
+/**
+ * Real-inspiration matching for the AI Interior/Exterior Designer flows —
+ * ranks published gallery items by how many of the given criteria they
+ * satisfy (category, room type, any overlapping style, budget range),
+ * rather than fabricating images. Simple overlap scoring, not ML: honest
+ * about what it is.
+ */
+export async function findMatchingDesignIdeas(criteria: {
+  language: string;
+  categoryId?: string;
+  roomType?: string;
+  styleNames?: string[];
+  budgetMin?: number;
+  budgetMax?: number;
+  limit?: number;
+}) {
+  const limit = criteria.limit ?? 6;
+  const candidates = await db.designIdea.findMany({
+    where: {
+      status: "PUBLISHED",
+      visibility: "PUBLIC",
+      language: criteria.language,
+      deletedAt: null,
+    },
+    include: { category: true, coverImage: true, styles: { include: { style: true } } },
+    orderBy: { viewCount: "desc" },
+    take: 60,
+  });
+
+  const styleNamesLower = new Set((criteria.styleNames ?? []).map((s) => s.toLowerCase()));
+
+  const scored = candidates.map((idea) => {
+    let score = 0;
+    if (criteria.categoryId && idea.categoryId === criteria.categoryId) score += 2;
+    if (criteria.roomType && idea.roomType?.toLowerCase() === criteria.roomType.toLowerCase()) score += 2;
+    if (styleNamesLower.size > 0 && idea.styles.some((s) => styleNamesLower.has(s.style.name.toLowerCase()))) score += 2;
+    if (criteria.budgetMin != null || criteria.budgetMax != null) {
+      const min = idea.budgetMin ? Number(idea.budgetMin) : undefined;
+      const max = idea.budgetMax ? Number(idea.budgetMax) : undefined;
+      const overlaps =
+        (min == null || criteria.budgetMax == null || min <= criteria.budgetMax) &&
+        (max == null || criteria.budgetMin == null || max >= criteria.budgetMin);
+      if (overlaps) score += 1;
+    }
+    return { idea, score };
+  });
+
+  return scored
+    .sort((a, b) => b.score - a.score || b.idea.viewCount - a.idea.viewCount)
+    .slice(0, limit)
+    .map((s) => s.idea);
+}
+
+/** Public-facing accessor — only published, publicly-visible, non-deleted rows. */
+export function listPublishedDesignIdeas(language: string) {
+  return db.designIdea.findMany({
+    where: { language, status: "PUBLISHED", visibility: "PUBLIC", deletedAt: null },
+    include: { category: true, coverImage: true, styles: { include: { style: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export function getDesignIdeaBySlug(language: string, slug: string) {
   return db.designIdea.findUnique({
     where: { language_slug: { language, slug } },

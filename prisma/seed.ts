@@ -120,12 +120,35 @@ async function seedAdvertisementPlacements() {
   console.log(`Seeded ${placements.length} advertisement placements.`);
 }
 
+/** Named style presets the Phase 6B AI Exterior Designer picker offers — real, reusable rows in the shared `Style` taxonomy, not a hardcoded UI list. */
+async function seedStyles() {
+  const styles = [
+    "Modern",
+    "Luxury",
+    "Minimal",
+    "Neo Classic",
+    "Contemporary",
+    "Mediterranean",
+    "Scandinavian",
+    "Japanese",
+    "Industrial",
+  ];
+
+  for (const name of styles) {
+    const slug = name.toLowerCase().replace(/\s+/g, "-");
+    await db.style.upsert({ where: { slug }, create: { name, slug }, update: { name } });
+  }
+
+  console.log(`Seeded ${styles.length} styles.`);
+}
+
 async function main() {
   await seedPermissions();
   await seedRoles();
   await seedLanguages();
   await seedCompanyListingPackages();
   await seedAdvertisementPlacements();
+  await seedStyles();
 }
 
 main()

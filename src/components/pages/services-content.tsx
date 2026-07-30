@@ -9,6 +9,7 @@ import { IconCard } from "@/components/icon-card";
 import { CtaBanner } from "@/components/cta-banner";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/language-provider";
+import { AskAiButton } from "@/components/ai/ask-ai-button";
 
 const ICONS = [Compass, Sofa, Building2, ClipboardCheck, Cuboid, HardHat];
 
@@ -85,6 +86,7 @@ export function ServicesContent({ services }: { services: { en: ServiceCard[]; a
                           {service.ctaLabel}
                         </Button>
                       )}
+                      <AskAiButton className="mt-3" prefillMessage={`Tell me more about this service: "${service.title}".`} />
                     </div>
                   </div>
                 );

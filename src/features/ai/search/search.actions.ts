@@ -31,6 +31,7 @@ const ENTITY_LIST_HREF: Record<string, string> = {
   ConstructionLibraryItem: "/knowledge/library",
   ConstructionJourneyStage: "/knowledge/build-journey",
   Company: "/companies",
+  DesignIdea: "/gallery",
 };
 
 async function resolveTitle(entityType: string, entityId: string): Promise<string | null> {
@@ -62,6 +63,10 @@ async function resolveTitle(entityType: string, entityId: string): Promise<strin
     case "Company": {
       const row = await db.company.findUnique({ where: { id: entityId }, select: { name: true } });
       return row?.name ?? null;
+    }
+    case "DesignIdea": {
+      const row = await db.designIdea.findUnique({ where: { id: entityId }, select: { title: true } });
+      return row?.title ?? null;
     }
     default:
       return null;

@@ -57,4 +57,6 @@ export const RATE_LIMIT_PRESETS = {
   aiVision: { limit: 10, windowMs: 5 * 60 * 1000 },
   aiDocumentUpload: { limit: 10, windowMs: 10 * 60 * 1000 },
   aiSearch: { limit: 30, windowMs: 60 * 1000 },
+  aiMatching: { limit: 20, windowMs: 5 * 60 * 1000 },
+  aiConcept: { limit: 10, windowMs: 10 * 60 * 1000 },
 } as const;

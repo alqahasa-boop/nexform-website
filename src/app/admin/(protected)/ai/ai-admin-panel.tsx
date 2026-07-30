@@ -22,6 +22,9 @@ const MODULE_LABELS: Record<AiModuleKey, string> = {
   DOCUMENT_AI: "Document AI",
   IMAGE_AI: "Image AI",
   KNOWLEDGE_SEARCH: "Knowledge Search",
+  INTERIOR_DESIGNER: "Interior Designer",
+  EXTERIOR_DESIGNER: "Exterior Designer",
+  COMPANY_MATCHING: "Company Matching",
 };
 
 const MODULE_DESCRIPTIONS: Record<AiModuleKey, string> = {
@@ -31,6 +34,9 @@ const MODULE_DESCRIPTIONS: Record<AiModuleKey, string> = {
   DOCUMENT_AI: "Analyzes uploaded documents (contracts, specs, reports).",
   IMAGE_AI: "Analyzes uploaded images (rooms, facades, sites, floor plans).",
   KNOWLEDGE_SEARCH: "Semantic and keyword search over NEXFORM's own content.",
+  INTERIOR_DESIGNER: "Guided interior concept generator with real gallery inspiration.",
+  EXTERIOR_DESIGNER: "Guided facade concept generator from an uploaded photo.",
+  COMPANY_MATCHING: "Matches users to real, verified engineering offices.",
 };
 
 interface ModuleRow {

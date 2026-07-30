@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/page-header";
 import { SectionHeading } from "@/components/section-heading";
 import { CtaBanner } from "@/components/cta-banner";
 import { useLanguage } from "@/components/language-provider";
+import { AskAiButton } from "@/components/ai/ask-ai-button";
 
 export interface CompanyCard {
   slug: string;
@@ -92,6 +93,11 @@ export function CompaniesContent({ companies }: { companies: CompanyCard[] }) {
                       </a>
                     )}
                   </div>
+                  <AskAiButton
+                    className="mt-3 self-start"
+                    module="COMPANY_MATCHING"
+                    prefillMessage={`Is "${company.name}" a good fit for my project? What do they specialize in?`}
+                  />
                 </div>
               ))}
             </div>

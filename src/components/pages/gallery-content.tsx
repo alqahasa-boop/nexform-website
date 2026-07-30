@@ -3,32 +3,28 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Home, Building2, Sofa, LayoutPanelLeft, Castle, Star, PlayCircle, type LucideIcon } from "lucide-react";
+import { Sparkles, Star } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { CtaBanner } from "@/components/cta-banner";
 import { useLanguage } from "@/components/language-provider";
 import { AskAiButton } from "@/components/ai/ask-ai-button";
 import { cn } from "@/lib/utils";
 
-const CATEGORY_ICONS: LucideIcon[] = [Home, Building2, Sofa, LayoutPanelLeft, Castle];
-
-export interface ProjectCard {
+export interface GalleryCard {
   slug: string;
   title: string;
-  summary: string;
+  description: string;
   category: string | null;
-  location: string | null;
+  roomType: string | null;
   coverImageUrl: string | null;
-  clientName?: string | null;
-  videoUrl?: string | null;
   featured?: boolean;
-  style?: string | null;
+  styles: string[];
 }
 
-export function ProjectsContent({ projects }: { projects: { en: ProjectCard[]; ar: ProjectCard[] } }) {
+export function GalleryContent({ items }: { items: { en: GalleryCard[]; ar: GalleryCard[] } }) {
   const { language, t } = useLanguage();
-  const p = t.projectsPage;
-  const published = projects[language];
+  const p = t.galleryPage;
+  const published = items[language];
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const categories = useMemo(
@@ -37,10 +33,6 @@ export function ProjectsContent({ projects }: { projects: { en: ProjectCard[]; a
   );
 
   const visible = activeCategory === null ? published : published.filter((item) => item.category === activeCategory);
-
-  const placeholders = p.categories.flatMap((category, categoryIndex) =>
-    [0, 1].map((n) => ({ id: `${categoryIndex}-${n}`, categoryIndex, category }))
-  );
 
   return (
     <>
@@ -81,9 +73,9 @@ export function ProjectsContent({ projects }: { projects: { en: ProjectCard[]; a
               )}
 
               <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {visible.map((project, i) => (
+                {visible.map((item, i) => (
                   <motion.div
-                    key={project.slug}
+                    key={item.slug}
                     layout
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -91,51 +83,38 @@ export function ProjectsContent({ projects }: { projects: { en: ProjectCard[]; a
                     className="group overflow-hidden rounded-2xl border border-border"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden bg-gold-soft/40">
-                      {project.coverImageUrl ? (
+                      {item.coverImageUrl ? (
                         <Image
-                          src={project.coverImageUrl}
-                          alt={project.title}
+                          src={item.coverImageUrl}
+                          alt={item.title}
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center">
-                          <Building2 className="h-12 w-12 text-gold/50" />
+                          <Sparkles className="h-12 w-12 text-gold/50" />
                         </div>
                       )}
-                      {project.featured && (
+                      {item.featured && (
                         <span className="absolute top-4 start-4 flex items-center gap-1 rounded-full bg-gold px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-ink">
                           <Star className="size-3 fill-current" />
                           Featured
                         </span>
                       )}
-                      {project.videoUrl && (
-                        <a
-                          href={project.videoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/20 group-hover:opacity-100"
-                          aria-label="Watch video"
-                        >
-                          <PlayCircle className="size-12 text-white drop-shadow-lg" />
-                        </a>
-                      )}
                     </div>
                     <div className="bg-card p-6">
                       <div className="flex items-center justify-between gap-2">
-                        {project.category && (
-                          <span className="text-xs font-medium uppercase tracking-widest text-gold">{project.category}</span>
-                        )}
-                        {project.style && <span className="text-xs text-muted-foreground">{project.style}</span>}
+                        {item.category && <span className="text-xs font-medium uppercase tracking-widest text-gold">{item.category}</span>}
+                        {item.styles.length > 0 && <span className="text-xs text-muted-foreground">{item.styles.join(", ")}</span>}
                       </div>
-                      <h3 className="mt-2 text-lg font-semibold">{project.title}</h3>
-                      {project.summary && <p className="mt-1 text-sm text-muted-foreground">{project.summary}</p>}
-                      {project.location && <p className="mt-1 text-xs text-muted-foreground">{project.location}</p>}
-                      {project.clientName && <p className="mt-1 text-xs text-muted-foreground">Client: {project.clientName}</p>}
+                      <h3 className="mt-2 text-lg font-semibold">{item.title}</h3>
+                      {item.description && <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>}
+                      {item.roomType && <p className="mt-1 text-xs text-muted-foreground">{item.roomType}</p>}
                       <AskAiButton
                         className="mt-3"
-                        prefillMessage={`Tell me more about this project: "${project.title}"${project.location ? ` in ${project.location}` : ""}.`}
+                        module="INTERIOR_DESIGNER"
+                        prefillMessage={`I like this design idea: "${item.title}". Can you tell me more about this style and how to adapt it?`}
                       />
                     </div>
                   </motion.div>
@@ -144,29 +123,25 @@ export function ProjectsContent({ projects }: { projects: { en: ProjectCard[]; a
             </>
           ) : (
             <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {placeholders.map((item, i) => {
-                const Icon = CATEGORY_ICONS[item.categoryIndex];
-                return (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-                    className="group overflow-hidden rounded-2xl border border-border"
-                  >
-                    <div className="relative flex aspect-[4/3] items-center justify-center bg-gold-soft/40">
-                      <Icon className="h-12 w-12 text-gold/50 transition-transform duration-500 group-hover:scale-110" />
-                      <span className="absolute top-4 end-4 rounded-full bg-background/80 px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-gold backdrop-blur-sm">
-                        {p.comingSoon}
-                      </span>
-                    </div>
-                    <div className="bg-card p-6">
-                      <span className="text-xs font-medium uppercase tracking-widest text-gold">{item.category}</span>
-                      <h3 className="mt-2 text-lg font-semibold">{p.placeholderTitle}</h3>
-                    </div>
-                  </motion.div>
-                );
-              })}
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
+                  className="group overflow-hidden rounded-2xl border border-border"
+                >
+                  <div className="relative flex aspect-[4/3] items-center justify-center bg-gold-soft/40">
+                    <Sparkles className="h-12 w-12 text-gold/50 transition-transform duration-500 group-hover:scale-110" />
+                    <span className="absolute top-4 end-4 rounded-full bg-background/80 px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-gold backdrop-blur-sm">
+                      {p.comingSoon}
+                    </span>
+                  </div>
+                  <div className="bg-card p-6">
+                    <h3 className="mt-2 text-lg font-semibold">{p.placeholderTitle}</h3>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           )}
         </div>

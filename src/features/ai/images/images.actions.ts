@@ -7,6 +7,8 @@ import { validateUpload, sanitizeFileName } from "@/lib/security/file-validation
 import { uploadFile, deleteFile } from "@/services/storage.service";
 import { runVisionTask } from "@/lib/ai/orchestrator";
 import { isAiConfigured } from "@/lib/ai/provider-registry";
+import { listPublishedServices } from "@/features/services/services.repository";
+import { findMatchingCompanies } from "@/features/companies/companies.repository";
 import {
   createUploadedFile,
   getUploadedFileById,
@@ -61,6 +63,8 @@ export async function uploadImageForAnalysisAction(formData: FormData): Promise<
 export interface AnalyzeImageResult {
   status: "ok" | "not_configured";
   response: string | null;
+  recommendedServices: { slug: string; title: string }[];
+  recommendedCompanies: { slug: string; name: string }[];
 }
 
 const DEFAULT_IMAGE_PROMPT =
@@ -72,7 +76,7 @@ export async function analyzeImageAction(fileId: string, question: string, langu
   if (!file || !fileBelongsTo(file, identity) || file.kind !== "IMAGE") return apiError("Image not found.", "NOT_FOUND");
 
   if (!isAiConfigured()) {
-    return apiSuccess({ status: "not_configured", response: null });
+    return apiSuccess({ status: "not_configured", response: null, recommendedServices: [], recommendedCompanies: [] });
   }
 
   const prompt = question.trim() || DEFAULT_IMAGE_PROMPT;
@@ -88,10 +92,22 @@ export async function analyzeImageAction(fileId: string, question: string, langu
     });
 
     await setAnalysisResult(fileId, "COMPLETE", { question: prompt, response: result.content, respondedAt: new Date().toISOString() });
-    return apiSuccess({ status: "ok", response: result.content });
+
+    // Real, existing content — not AI-invented recommendations — surfaced alongside the analysis.
+    const [services, companies] = await Promise.all([
+      listPublishedServices(language).then((rows) => rows.slice(0, 3)),
+      findMatchingCompanies({ limit: 3 }),
+    ]);
+
+    return apiSuccess({
+      status: "ok",
+      response: result.content,
+      recommendedServices: services.map((s) => ({ slug: s.slug, title: s.title })),
+      recommendedCompanies: companies.map((c) => ({ slug: c.slug, name: c.name })),
+    });
   } catch (error) {
     await setAnalysisResult(fileId, "FAILED", undefined, error instanceof Error ? error.message : "Unknown error.");
-    return apiSuccess({ status: "not_configured", response: null });
+    return apiSuccess({ status: "not_configured", response: null, recommendedServices: [], recommendedCompanies: [] });
   }
 }
 

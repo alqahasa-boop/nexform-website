@@ -37,4 +37,5 @@ export const AI_KNOWLEDGE_ENTITY_TYPES = [
   "ConstructionLibraryItem",
   "ConstructionJourneyStage",
   "Company",
+  "DesignIdea",
 ] as const;

@@ -9,11 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { createDesignRequestAction } from "@/features/design-requests/design-requests.actions";
+import { convertConceptToDesignRequestAction } from "@/features/ai/concepts/concept-handoff.actions";
 import { useLanguage } from "@/components/language-provider";
 
 export interface QuoteRequestPrefill {
   notes?: string;
   serviceId?: string;
+  /** When set, submitting converts this AI-generated concept into the design request (carries room type, budget, styles, and marks the concept as converted) instead of a plain notes-only submission. */
+  conceptId?: string;
 }
 
 /**
@@ -67,13 +70,21 @@ export function QuoteRequestDialog({
 
   const handleSubmit = () => {
     startTransition(async () => {
-      const result = await createDesignRequestAction({
-        fullName,
-        email,
-        phone: phone || undefined,
-        notes: notes || undefined,
-        serviceId: prefill?.serviceId,
-      });
+      const result = prefill?.conceptId
+        ? await convertConceptToDesignRequestAction({
+            conceptId: prefill.conceptId,
+            fullName,
+            email,
+            phone: phone || undefined,
+            notes: notes || undefined,
+          })
+        : await createDesignRequestAction({
+            fullName,
+            email,
+            phone: phone || undefined,
+            notes: notes || undefined,
+            serviceId: prefill?.serviceId,
+          });
       if (result.success) {
         setSubmitted(result.data.requestNumber);
         toast.success(copy.successTitle);

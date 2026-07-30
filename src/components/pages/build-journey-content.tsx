@@ -17,6 +17,7 @@ import { PageHeader } from "@/components/page-header";
 import { SectionHeading } from "@/components/section-heading";
 import { CtaBanner } from "@/components/cta-banner";
 import { useLanguage } from "@/components/language-provider";
+import { AskAiButton } from "@/components/ai/ask-ai-button";
 
 const ICONS: LucideIcon[] = [MapPin, ClipboardList, Compass, FileCheck, Users, HardHat, PaintRoller, KeyRound];
 
@@ -78,6 +79,11 @@ export function BuildJourneyContent({ steps }: { steps: { en: JourneyStepData[];
                       ) : (
                         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
                       )}
+                      <AskAiButton
+                        className="mt-3"
+                        module="BUILD_JOURNEY_ASSISTANT"
+                        prefillMessage={`What should I know about this stage: "${step.title}"?`}
+                      />
                     </div>
                   </motion.div>
                 );

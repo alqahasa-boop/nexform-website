@@ -26,7 +26,7 @@ import { apiSuccess, apiError, type ApiResult } from "@/types/api";
  * action — AI-driven or not — should submit to, instead of a generic contact form,
  * so the office gets the structured service/budget/style/measurements context.
  */
-export async function createDesignRequestAction(input: unknown): Promise<ApiResult<{ requestNumber: string }>> {
+export async function createDesignRequestAction(input: unknown): Promise<ApiResult<{ id: string; requestNumber: string }>> {
   const session = await getAdminSession();
 
   let rateKey = `design-request:user:${session?.id}`;
@@ -51,7 +51,7 @@ export async function createDesignRequestAction(input: unknown): Promise<ApiResu
   revalidatePath("/admin/design-requests");
   revalidatePath("/admin");
 
-  return apiSuccess({ requestNumber: request.requestNumber });
+  return apiSuccess({ id: request.id, requestNumber: request.requestNumber });
 }
 
 export async function changeDesignRequestStatusAction(id: string, status: DesignRequestStatus, note?: string): Promise<ApiResult<null>> {

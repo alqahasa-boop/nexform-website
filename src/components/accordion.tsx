@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AskAiButton } from "@/components/ai/ask-ai-button";
 
 export function Accordion({ items }: { items: readonly { question: string; answer: string }[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -36,7 +37,13 @@ export function Accordion({ items }: { items: readonly { question: string; answe
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                  <p className="pb-6 text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+                  <div className="pb-6">
+                    <p className="text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+                    <AskAiButton
+                      className="mt-3"
+                      prefillMessage={`Can you explain this in more detail: "${item.question}"`}
+                    />
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -1,5 +1,6 @@
 "use server";
 
+import { db } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth/admin-session";
 import { getOrCreateGuestSessionId } from "@/lib/ai/guest-session";
 import { rateLimit, RATE_LIMIT_PRESETS } from "@/lib/security/rate-limit";
@@ -8,6 +9,7 @@ import { uploadFile, deleteFile } from "@/services/storage.service";
 import { runChatTask } from "@/lib/ai/orchestrator";
 import { isAiConfigured } from "@/lib/ai/provider-registry";
 import { AI_LIMITS } from "@/config/ai.config";
+import { findRelevantKnowledge } from "@/features/ai/knowledge/knowledge-retrieval";
 import { extractTextFromFile } from "./text-extraction";
 import {
   createUploadedFile,
@@ -94,6 +96,37 @@ export async function uploadDocumentAction(formData: FormData): Promise<ApiResul
 export interface AnalyzeDocumentResult {
   status: "ok" | "not_configured";
   response: string | null;
+  relatedArticles: { title: string; href: string }[];
+}
+
+const RELATED_ARTICLE_HREF: Record<string, string> = {
+  Content: "/knowledge",
+  FaqItem: "/knowledge/faq",
+  ConstructionLibraryItem: "/knowledge/library",
+  ConstructionJourneyStage: "/knowledge/build-journey",
+};
+
+async function resolveRelatedArticleTitle(entityType: string, entityId: string): Promise<string | null> {
+  switch (entityType) {
+    case "Content": {
+      const row = await db.content.findUnique({ where: { id: entityId }, select: { title: true } });
+      return row?.title ?? null;
+    }
+    case "FaqItem": {
+      const row = await db.faqItem.findUnique({ where: { id: entityId }, select: { question: true } });
+      return row?.question ?? null;
+    }
+    case "ConstructionLibraryItem": {
+      const row = await db.constructionLibraryItem.findUnique({ where: { id: entityId }, select: { title: true } });
+      return row?.title ?? null;
+    }
+    case "ConstructionJourneyStage": {
+      const row = await db.constructionJourneyStage.findUnique({ where: { id: entityId }, select: { title: true } });
+      return row?.title ?? null;
+    }
+    default:
+      return null;
+  }
 }
 
 export async function analyzeDocumentAction(fileId: string, instruction: string, language: string): Promise<ApiResult<AnalyzeDocumentResult>> {
@@ -103,7 +136,7 @@ export async function analyzeDocumentAction(fileId: string, instruction: string,
   if (!file.extractedText) return apiError("This file has no extracted text to analyze.", "NO_TEXT");
 
   if (!isAiConfigured()) {
-    return apiSuccess({ status: "not_configured", response: null });
+    return apiSuccess({ status: "not_configured", response: null, relatedArticles: [] });
   }
 
   const trimmedInstruction = instruction.trim() || "Summarize this document in plain language.";
@@ -119,10 +152,20 @@ export async function analyzeDocumentAction(fileId: string, instruction: string,
     });
 
     await setAnalysisResult(fileId, "COMPLETE", { instruction: trimmedInstruction, response: result.content, respondedAt: new Date().toISOString() });
-    return apiSuccess({ status: "ok", response: result.content });
+
+    const matches = await findRelevantKnowledge(file.extractedText.slice(0, 500), language, 3);
+    const relatedArticles: { title: string; href: string }[] = [];
+    for (const match of matches) {
+      const href = RELATED_ARTICLE_HREF[match.entityType];
+      if (!href) continue;
+      const title = await resolveRelatedArticleTitle(match.entityType, match.entityId);
+      if (title) relatedArticles.push({ title, href });
+    }
+
+    return apiSuccess({ status: "ok", response: result.content, relatedArticles });
   } catch (error) {
     await setAnalysisResult(fileId, "FAILED", undefined, error instanceof Error ? error.message : "Unknown error.");
-    return apiSuccess({ status: "not_configured", response: null });
+    return apiSuccess({ status: "not_configured", response: null, relatedArticles: [] });
   }
 }
 

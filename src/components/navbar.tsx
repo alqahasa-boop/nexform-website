@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Menu, User, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { LanguageToggle } from "@/components/language-toggle";
@@ -123,13 +124,14 @@ export function Navbar() {
           </span>
           <LanguageToggle />
           <ThemeToggle />
-          <Link
-            href="/admin/login"
+          <button
+            type="button"
+            onClick={() => toast(t.mobileNav.accountComingSoon)}
             aria-label="Account"
             className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <User className="h-4 w-4" />
-          </Link>
+          </button>
           <Button
             render={<Link href="/contact" />}
             nativeButton={false}

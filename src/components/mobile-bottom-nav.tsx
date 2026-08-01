@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Compass, Sparkles, Bookmark, User } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/language-provider";
 
 /**
- * "Saved" and "Account" both point at `/account/assistant` (the existing AI
- * Workspace page) — there's no separate public customer-account or favorites
- * system yet (only staff `/admin/login`). Disclosed here rather than faked;
- * a real distinct experience for these two is future work.
+ * "Saved" and "Account" are not links: `/account/assistant` is gated by
+ * `requireAdminSession()` (staff-only), so routing real visitors there would
+ * dead-end them on the internal admin login. There's no public
+ * customer-account or favorites system yet, so both show an honest
+ * "coming soon" notice instead of a broken destination.
  */
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -22,8 +24,8 @@ export function MobileBottomNav() {
     { key: "home", href: "/", icon: Home, label: t.mobileNav.home, primary: false },
     { key: "explore", href: "/gallery", icon: Compass, label: t.mobileNav.explore, primary: false },
     { key: "ai", href: "/studio", icon: Sparkles, label: t.mobileNav.ai, primary: true },
-    { key: "saved", href: "/account/assistant", icon: Bookmark, label: t.mobileNav.saved, primary: false },
-    { key: "account", href: "/account/assistant", icon: User, label: t.mobileNav.account, primary: false },
+    { key: "saved", href: null, icon: Bookmark, label: t.mobileNav.saved, primary: false },
+    { key: "account", href: null, icon: User, label: t.mobileNav.account, primary: false },
   ] as const;
 
   return (
@@ -32,7 +34,7 @@ export function MobileBottomNav() {
       aria-label="Primary"
     >
       {items.map((item) => {
-        const active = isActive(item.href);
+        const active = item.href ? isActive(item.href) : false;
         const Icon = item.icon;
 
         if (item.primary) {
@@ -48,6 +50,21 @@ export function MobileBottomNav() {
               </span>
               <span className={cn("text-[10px] font-medium", active ? "text-ai" : "text-muted-foreground")}>{item.label}</span>
             </Link>
+          );
+        }
+
+        if (!item.href) {
+          return (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => toast(t.mobileNav.accountComingSoon)}
+              className="flex flex-1 flex-col items-center gap-1 py-1.5"
+              aria-label={item.label}
+            >
+              <Icon className="size-5 text-muted-foreground" />
+              <span className="text-[10px] font-medium text-muted-foreground">{item.label}</span>
+            </button>
           );
         }
 

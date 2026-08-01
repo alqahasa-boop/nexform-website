@@ -22,6 +22,7 @@ export const translations = {
       ai: "AI",
       saved: "Saved",
       account: "Account",
+      accountComingSoon: "Personal accounts are coming soon. In the meantime, try the AI Studio or request a quote.",
     },
     heroSearch: {
       placeholder: "Search floor plans, interior design, facades, articles or ask AI…",
@@ -432,6 +433,7 @@ export const translations = {
       ai: "الذكاء الاصطناعي",
       saved: "المحفوظات",
       account: "حسابي",
+      accountComingSoon: "الحسابات الشخصية قريباً. بإمكانك تجربة استوديو الذكاء الاصطناعي أو طلب عرض سعر في الوقت الحالي.",
     },
     heroSearch: {
       placeholder: "ابحث عن مخططات، تصميم داخلي، واجهات، مقالات أو اسأل الذكاء الاصطناعي…",

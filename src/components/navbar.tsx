@@ -52,16 +52,16 @@ export function Navbar() {
 
   const linkClass = (active: boolean) =>
     cn(
-      "border-b-2 border-transparent pb-0.5 text-sm font-medium tracking-wide text-foreground/80 transition-colors hover:text-gold",
+      "border-b-2 border-transparent pb-0.5 text-[13.5px] font-medium text-foreground/80 transition-colors hover:text-gold",
       active && "border-gold text-gold"
     );
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
+    <header className="fixed inset-x-0 top-9 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
       {/* Floating glass pill — always frosted, not just after scroll, so it reads clearly over any hero image. */}
       <div
         className={cn(
-          "glass mx-auto flex h-14 sm:h-16 max-w-5xl items-center justify-between rounded-full px-4 sm:px-6 shadow-lg shadow-black/[0.03] transition-shadow duration-300",
+          "glass mx-auto flex h-16 sm:h-[4.25rem] max-w-5xl items-center justify-between gap-4 rounded-full px-5 sm:px-7 shadow-lg shadow-black/[0.03] transition-shadow duration-300",
           scrolled && "shadow-black/[0.06]"
         )}
       >
@@ -69,7 +69,7 @@ export function Navbar() {
           <Logo variant="compact" className="w-24 sm:w-28" />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-7">
+        <nav className="hidden md:flex items-center gap-8 lg:gap-9">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass(isActive(link.href))}>
               {link.label}
@@ -118,25 +118,34 @@ export function Navbar() {
           </Link>
         </nav>
 
-        <div className="hidden md:flex items-center gap-1">
-          <span className="me-1 text-sm text-muted-foreground" dir="ltr">
-            🇰🇼 Kuwait
-          </span>
-          <LanguageToggle />
-          <ThemeToggle />
-          <button
-            type="button"
-            onClick={() => toast(t.mobileNav.accountComingSoon)}
-            aria-label="Account"
-            className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <User className="h-4 w-4" />
-          </button>
+        <div className="hidden md:flex items-center gap-3 lg:gap-4">
+          <div className="flex flex-col items-center justify-center leading-none" dir="ltr" aria-label="Kuwait">
+            <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Kuwait</span>
+            <span className="mt-1 text-xs" aria-hidden>
+              🇰🇼
+            </span>
+          </div>
+
+          <div className="h-6 w-px bg-border" aria-hidden />
+
+          <div className="flex items-center gap-1">
+            <LanguageToggle />
+            <ThemeToggle />
+            <button
+              type="button"
+              onClick={() => toast(t.mobileNav.accountComingSoon)}
+              aria-label="Account"
+              className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <User className="h-4 w-4" />
+            </button>
+          </div>
+
           <Button
             render={<Link href="/contact" />}
             nativeButton={false}
             size="sm"
-            className="ms-2 rounded-full bg-gold text-ink hover:bg-gold/90"
+            className="rounded-full bg-gold text-ink hover:bg-gold/90"
           >
             {t.nav.cta}
           </Button>
@@ -220,10 +229,13 @@ export function Navbar() {
                 {t.nav.contact}
               </Link>
 
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-sm text-muted-foreground" dir="ltr">
-                  🇰🇼 Kuwait
-                </span>
+              <div className="flex items-center justify-between border-t border-border pt-4 mt-1">
+                <div className="flex flex-col items-center justify-center leading-none" dir="ltr" aria-label="Kuwait">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Kuwait</span>
+                  <span className="mt-1 text-xs" aria-hidden>
+                    🇰🇼
+                  </span>
+                </div>
                 <div className="flex items-center gap-1">
                   <LanguageToggle />
                   <ThemeToggle />

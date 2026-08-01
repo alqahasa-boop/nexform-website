@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/logo";
 import { HeroBackground } from "@/components/hero-background";
 import { HeroSearchBar } from "@/components/hero-search-bar";
 import { QuickCategoryChips } from "@/components/quick-category-chips";
@@ -17,21 +16,13 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden pt-16 sm:pt-20"
+      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden pt-28 sm:pt-32"
     >
       <HeroBackground />
 
-      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 sm:px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          <Logo variant="full" className="w-56 sm:w-72 md:w-80" />
-        </motion.div>
-
+      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-3xl flex-col items-center gap-6 px-4 sm:px-6 text-center">
         <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-medium tracking-tight text-white text-balance">
-          <TextReveal text={t.hero.headline} delay={0.5} />
+          <TextReveal text={t.hero.headline} delay={0.2} />
         </h1>
 
         <motion.p

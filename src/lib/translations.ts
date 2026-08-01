@@ -16,6 +16,13 @@ export const translations = {
       contact: "Contact",
       cta: "Start Your Project",
     },
+    announcement: [
+      "Welcome to NEXFORM — Kuwait's Engineering Platform",
+      "Discover Projects, AI Studio and Construction Journey",
+      "Browse Engineering Companies",
+      "Explore Interior & Exterior Inspiration",
+      "Build Smarter with AI",
+    ],
     mobileNav: {
       home: "Home",
       explore: "Explore",
@@ -427,6 +434,13 @@ export const translations = {
       contact: "تواصل معنا",
       cta: "ابدأ مشروعك",
     },
+    announcement: [
+      "مرحباً بك في نكسفورم — منصة الهندسة الأولى في الكويت",
+      "اكتشف المشاريع، استوديو الذكاء الاصطناعي، ورحلة البناء",
+      "تصفّح دليل المكاتب الهندسية",
+      "استكشف إلهام التصميم الداخلي والواجهات",
+      "ابنِ بذكاء أكبر مع الذكاء الاصطناعي",
+    ],
     mobileNav: {
       home: "الرئيسية",
       explore: "استكشف",

@@ -18,7 +18,7 @@ export function PageHeader({
   subtitle?: string;
 }) {
   return (
-    <section className="relative flex min-h-[38vh] sm:min-h-[42vh] items-center justify-center overflow-hidden pt-20 sm:pt-24">
+    <section className="relative flex min-h-[38vh] sm:min-h-[42vh] items-center justify-center overflow-hidden pt-28 sm:pt-32">
       <GeometricBackground variant="cta" />
 
       <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-5 px-4 sm:px-6 text-center">

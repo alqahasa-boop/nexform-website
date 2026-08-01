@@ -140,7 +140,7 @@ export function StudioHub({
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-16">
+    <div className="mx-auto max-w-4xl px-4 pb-16 pt-28 sm:pt-32">
       <div className="text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">{copy.title}</h1>
         <p className="mt-2 text-muted-foreground">{copy.subtitle}</p>

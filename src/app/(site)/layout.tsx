@@ -1,5 +1,6 @@
 import { LanguageProvider } from "@/components/language-provider";
 import { SkipLink } from "@/components/skip-link";
+import { TopAnnouncementBar } from "@/components/top-announcement-bar";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { AiWidget } from "@/components/ai/ai-widget";
@@ -11,6 +12,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
     <LanguageProvider>
       <AiWidgetProvider>
         <SkipLink />
+        <TopAnnouncementBar />
         <Navbar />
         <main id="main-content" className="pb-20 md:pb-0">
           {children}

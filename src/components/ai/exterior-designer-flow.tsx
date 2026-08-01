@@ -111,7 +111,7 @@ export function ExteriorDesignerFlow() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-16">
+    <div className="mx-auto max-w-2xl px-4 pb-16 pt-28 sm:pt-32">
       <h1 className="text-2xl font-semibold text-foreground">{copy.title}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{copy.subtitle}</p>
 

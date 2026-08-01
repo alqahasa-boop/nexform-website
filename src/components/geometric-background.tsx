@@ -15,8 +15,8 @@ export function GeometricBackground({ variant = "hero" }: { variant?: "hero" | "
         style={{
           background:
             variant === "hero"
-              ? "radial-gradient(120% 90% at 50% 0%, rgba(201,166,90,0.14) 0%, rgba(10,10,10,0) 55%), radial-gradient(90% 70% at 85% 100%, rgba(201,166,90,0.08) 0%, rgba(10,10,10,0) 60%)"
-              : "radial-gradient(80% 80% at 50% 50%, rgba(201,166,90,0.12) 0%, rgba(10,10,10,0) 65%), radial-gradient(60% 60% at 15% 85%, rgba(140,95,60,0.16) 0%, rgba(10,10,10,0) 70%)",
+              ? "radial-gradient(120% 90% at 50% 0%, rgba(201,164,91,0.14) 0%, rgba(10,10,10,0) 55%), radial-gradient(90% 70% at 85% 100%, rgba(94,107,255,0.06) 0%, rgba(10,10,10,0) 60%)"
+              : "radial-gradient(80% 80% at 50% 50%, rgba(201,164,91,0.12) 0%, rgba(10,10,10,0) 65%), radial-gradient(60% 60% at 15% 85%, rgba(94,107,255,0.08) 0%, rgba(10,10,10,0) 70%)",
         }}
       />
 

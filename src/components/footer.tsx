@@ -21,9 +21,9 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative bg-ink text-white/80 pt-16 pb-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 md:grid-cols-4">
+    <footer className="relative bg-ink text-white/80 pt-14 pb-8">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
           <div className="flex flex-col items-start gap-4 sm:col-span-2 md:col-span-1">
             <Logo variant="compact" />
             <p className="text-sm leading-relaxed text-white/60">{t.footer.tagline}</p>
@@ -85,7 +85,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 border-t border-white/10 pt-6 text-center text-xs text-white/40">
+        <div className="mt-12 border-t border-white/10 pt-6 text-center text-xs text-white/40">
           {t.footer.copyright.replace("{year}", String(year))}
         </div>
       </div>

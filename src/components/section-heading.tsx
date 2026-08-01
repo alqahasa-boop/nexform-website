@@ -19,7 +19,7 @@ export function SectionHeading({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.6 }}
-        className="text-xs sm:text-sm font-medium uppercase tracking-[0.3em] text-gold"
+        className="text-xs sm:text-sm font-medium uppercase tracking-[0.35em] text-gold"
       >
         {eyebrow}
       </motion.p>

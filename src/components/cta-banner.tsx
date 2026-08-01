@@ -12,7 +12,7 @@ export function CtaBanner({ headline, buttonLabel, href = "/contact" }: { headli
   const ArrowIcon = language === "ar" ? ArrowLeft : ArrowRight;
 
   return (
-    <section className="relative flex min-h-[50vh] items-center overflow-hidden py-24">
+    <section className="relative flex min-h-[44vh] items-center overflow-hidden py-24">
       <GeometricBackground variant="cta" />
 
       <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-8 px-4 sm:px-6 text-center">
@@ -36,7 +36,7 @@ export function CtaBanner({ headline, buttonLabel, href = "/contact" }: { headli
             render={<Link href={href} />}
             nativeButton={false}
             size="lg"
-            className="h-12 px-8 text-base bg-gold text-ink hover:bg-gold/90 gap-2"
+            className="h-12 px-8 text-base bg-gold text-ink hover:bg-gold/90 gap-2 shadow-lg shadow-gold/20"
           >
             {buttonLabel}
             <ArrowIcon className="h-4 w-4" />

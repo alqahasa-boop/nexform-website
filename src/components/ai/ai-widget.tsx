@@ -217,7 +217,7 @@ export function AiWidget() {
   };
 
   return (
-    <div className={cn("fixed bottom-5 z-[60]", language === "ar" ? "left-5" : "right-5")}>
+    <div className={cn("fixed bottom-24 z-[60] md:bottom-5", language === "ar" ? "left-5" : "right-5")}>
       <AnimatePresence>
         {open && (
           <motion.div
@@ -253,7 +253,7 @@ export function AiWidget() {
                   className={cn(
                     "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                     mode === "chat" && module === key
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-ai text-ai-foreground"
                       : "bg-muted text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -264,7 +264,7 @@ export function AiWidget() {
                 onClick={() => setMode("search")}
                 className={cn(
                   "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                  mode === "search" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                  mode === "search" ? "bg-ai text-ai-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
                 )}
               >
                 <Search className="size-3" />
@@ -300,7 +300,7 @@ export function AiWidget() {
                     <a
                       key={i}
                       href={result.href}
-                      className="block rounded-xl border border-border p-3 text-sm transition-colors hover:border-primary/40 hover:bg-muted/40"
+                      className="block rounded-xl border border-border p-3 text-sm transition-colors hover:border-ai/40 hover:bg-muted/40"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <p className="font-medium text-foreground">{result.title}</p>
@@ -324,7 +324,7 @@ export function AiWidget() {
                       key={i}
                       className={cn(
                         "max-w-[85%] rounded-xl px-3 py-2 text-sm",
-                        m.role === "user" && "ms-auto bg-primary text-primary-foreground",
+                        m.role === "user" && "ms-auto bg-ai text-ai-foreground",
                         m.role === "assistant" && "bg-muted text-foreground",
                         m.role === "system" && "mx-auto bg-muted/60 text-center text-xs text-muted-foreground"
                       )}
@@ -404,7 +404,7 @@ export function AiWidget() {
         size="icon-lg"
         onClick={() => setOpen((v) => !v)}
         aria-label={t.launcherLabel}
-        className="size-14 rounded-full bg-gold text-ink shadow-xl hover:bg-gold/90"
+        className="size-14 rounded-full bg-ai text-ai-foreground shadow-xl shadow-ai/30 hover:bg-ai/90"
       >
         {open ? <X className="size-6" /> : <Sparkles className="size-6" />}
       </Button>

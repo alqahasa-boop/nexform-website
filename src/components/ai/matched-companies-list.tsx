@@ -28,7 +28,9 @@ export function MatchedCompaniesList({
   return (
     <div>
       <p className="mb-2 text-sm font-semibold text-foreground">{copy.title}</p>
-      {narrative && <p className="mb-3 text-sm text-muted-foreground">{narrative}</p>}
+      {narrative && (
+        <p className="mb-3 rounded-xl border border-ai/25 bg-ai-soft/40 p-3 text-sm text-foreground">{narrative}</p>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         {companies.map((company) => (
           <div key={company.id} className="rounded-xl border border-border bg-card p-4">

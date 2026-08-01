@@ -80,7 +80,7 @@ export function GalleryContent({ items }: { items: { en: GalleryCard[]; ar: Gall
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-                    className="group overflow-hidden rounded-2xl border border-border"
+                    className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden bg-gold-soft/40">
                       {item.coverImageUrl ? (

@@ -32,7 +32,7 @@ export function AskAiButton({
         openWidget({ module, prefillMessage, mode: "chat" });
       }}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur-sm transition-colors hover:border-primary/40 hover:text-primary",
+        "inline-flex items-center gap-1 rounded-full border border-ai/25 bg-ai-soft/60 px-2.5 py-1 text-[11px] font-medium text-ai backdrop-blur-sm transition-colors hover:border-ai/50 hover:bg-ai-soft",
         className
       )}
     >

@@ -125,7 +125,7 @@ export function ExteriorDesignerFlow() {
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/40 hover:border-primary/40"
+          className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/40 hover:border-ai/40"
         >
           {previewUrl ? (
             <Image src={previewUrl} alt="Facade preview" fill className="object-cover" unoptimized />
@@ -197,7 +197,7 @@ export function ExteriorDesignerFlow() {
                 </div>
               </div>
             )}
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+            <div className="rounded-xl border border-ai/30 bg-ai-soft/40 p-4">
               <p className="text-sm font-medium text-foreground">{copy.cta}</p>
               <QuoteRequestDialog
                 trigger={

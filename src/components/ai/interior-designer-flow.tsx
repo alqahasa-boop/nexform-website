@@ -119,7 +119,7 @@ export function InteriorDesignerFlow() {
 
       <div className="mt-6 flex gap-1.5">
         {copy.steps.map((label, i) => (
-          <div key={label} className={`h-1 flex-1 rounded-full ${i <= step ? "bg-primary" : "bg-muted"}`} />
+          <div key={label} className={`h-1 flex-1 rounded-full ${i <= step ? "bg-ai" : "bg-muted"}`} />
         ))}
       </div>
 
@@ -236,7 +236,7 @@ export function InteriorDesignerFlow() {
                 </div>
               </div>
             )}
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+            <div className="rounded-xl border border-ai/30 bg-ai-soft/40 p-4">
               <p className="text-sm font-medium text-foreground">{copy.cta}</p>
               <QuoteRequestDialog
                 trigger={

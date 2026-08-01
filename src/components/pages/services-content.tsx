@@ -51,7 +51,7 @@ export function ServicesContent({ services }: { services: { en: ServiceCard[]; a
               {published.map((service) => {
                 const ServiceIcon = (service.icon && ICON_REGISTRY[service.icon]) || null;
                 return (
-                  <div key={service.slug} className="group relative overflow-hidden rounded-2xl border border-border bg-card">
+                  <div key={service.slug} className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg">
                     {service.coverImageUrl && (
                       <div className="relative aspect-video overflow-hidden">
                         <Image
@@ -65,7 +65,7 @@ export function ServicesContent({ services }: { services: { en: ServiceCard[]; a
                     )}
                     <div className="p-6">
                       {ServiceIcon && (
-                        <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <div className="mb-3 flex size-10 items-center justify-center rounded-full bg-gold-soft text-gold">
                           <ServiceIcon className="size-5" />
                         </div>
                       )}

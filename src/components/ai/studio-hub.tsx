@@ -171,8 +171,8 @@ export function StudioHub({
           {copy.actions.map((item) => {
             const Icon = item.icon;
             const content = (
-              <div className="flex h-full flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-5 text-center transition-colors hover:border-primary/40 hover:bg-muted/40">
-                <Icon className="size-6 text-primary" />
+              <div className="flex h-full flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-5 text-center shadow-sm transition-all hover:border-ai/40 hover:bg-ai-soft/30 hover:shadow-md">
+                <Icon className="size-6 text-ai" />
                 <span className="text-sm font-medium text-foreground">{item.label}</span>
               </div>
             );

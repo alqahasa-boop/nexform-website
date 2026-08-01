@@ -5,6 +5,8 @@ import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { HeroBackground } from "@/components/hero-background";
+import { HeroSearchBar } from "@/components/hero-search-bar";
+import { QuickCategoryChips } from "@/components/quick-category-chips";
 import { TextReveal } from "@/components/text-reveal";
 import { useLanguage } from "@/components/language-provider";
 
@@ -19,13 +21,13 @@ export function Hero() {
     >
       <HeroBackground />
 
-      <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-8 px-4 sm:px-6 text-center">
+      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 sm:px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
         >
-          <Logo variant="full" />
+          <Logo variant="full" className="w-56 sm:w-72 md:w-80" />
         </motion.div>
 
         <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-medium tracking-tight text-white text-balance">
@@ -44,8 +46,26 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.45 }}
-          className="flex flex-col sm:flex-row items-center gap-4 pt-2"
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="w-full pt-2"
+        >
+          <HeroSearchBar />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.5 }}
+          className="w-full max-w-none"
+        >
+          <QuickCategoryChips />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.6 }}
+          className="flex flex-col sm:flex-row items-center gap-4 pt-1"
         >
           <Button
             render={<a href="#contact" />}
@@ -72,7 +92,7 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+        className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 sm:flex"
       >
         <div className="h-10 w-6 rounded-full border border-white/30 flex justify-center p-1.5">
           <motion.div

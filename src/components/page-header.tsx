@@ -18,15 +18,15 @@ export function PageHeader({
   subtitle?: string;
 }) {
   return (
-    <section className="relative flex min-h-[42vh] sm:min-h-[46vh] items-center justify-center overflow-hidden pt-16 sm:pt-20">
+    <section className="relative flex min-h-[38vh] sm:min-h-[42vh] items-center justify-center overflow-hidden pt-20 sm:pt-24">
       <GeometricBackground variant="cta" />
 
-      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 sm:px-6 text-center">
+      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-5 px-4 sm:px-6 text-center">
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-xs sm:text-sm font-medium uppercase tracking-[0.3em] text-gold"
+          className="text-xs sm:text-sm font-medium uppercase tracking-[0.35em] text-gold"
         >
           {eyebrow}
         </motion.p>
@@ -43,7 +43,7 @@ export function PageHeader({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="max-w-2xl text-base sm:text-lg text-white/70 text-balance"
+            className="max-w-xl text-base sm:text-lg leading-relaxed text-white/65 text-balance"
           >
             {subtitle}
           </motion.p>

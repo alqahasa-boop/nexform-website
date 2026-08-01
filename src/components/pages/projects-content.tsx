@@ -88,7 +88,7 @@ export function ProjectsContent({ projects }: { projects: { en: ProjectCard[]; a
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-                    className="group overflow-hidden rounded-2xl border border-border"
+                    className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden bg-gold-soft/40">
                       {project.coverImageUrl ? (
@@ -152,7 +152,7 @@ export function ProjectsContent({ projects }: { projects: { en: ProjectCard[]; a
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-                    className="group overflow-hidden rounded-2xl border border-border"
+                    className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg"
                   >
                     <div className="relative flex aspect-[4/3] items-center justify-center bg-gold-soft/40">
                       <Icon className="h-12 w-12 text-gold/50 transition-transform duration-500 group-hover:scale-110" />

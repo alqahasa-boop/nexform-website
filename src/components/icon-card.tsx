@@ -27,7 +27,7 @@ export function IconCard({
       transition={{ duration: 0.6, delay }}
       whileHover={{ y: -6 }}
       className={cn(
-        "glass group relative rounded-2xl p-8 transition-colors hover:border-gold/50",
+        "group relative rounded-2xl border border-border bg-card p-8 shadow-sm transition-all hover:border-gold/40 hover:shadow-md",
         className
       )}
     >
@@ -39,7 +39,7 @@ export function IconCard({
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold-soft text-gold transition-transform duration-300 group-hover:scale-110">
         <Icon className="h-5 w-5" />
       </div>
-      <h3 className="mt-6 text-lg font-semibold">{title}</h3>
+      <h3 className="mt-6 text-lg font-semibold text-foreground">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
     </motion.div>
   );

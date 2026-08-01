@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { LanguageToggle } from "@/components/language-toggle";
@@ -21,7 +21,7 @@ export function Navbar() {
   const [mobileKnowledgeOpen, setMobileKnowledgeOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -51,25 +51,24 @@ export function Navbar() {
 
   const linkClass = (active: boolean) =>
     cn(
-      "border-b-2 border-transparent pb-1 text-sm font-medium tracking-wide transition-colors hover:text-gold",
-      active ? "border-gold text-gold" : scrolled ? "text-foreground" : "text-white"
+      "border-b-2 border-transparent pb-0.5 text-sm font-medium tracking-wide text-foreground/80 transition-colors hover:text-gold",
+      active && "border-gold text-gold"
     );
 
   return (
-    <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
-        scrolled
-          ? "bg-background/90 backdrop-blur-md border-b border-border"
-          : "bg-transparent border-b border-transparent"
-      )}
-    >
-      <div className="mx-auto flex h-16 sm:h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" aria-label="NEXFORM home">
-          <Logo variant="compact" />
+    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
+      {/* Floating glass pill — always frosted, not just after scroll, so it reads clearly over any hero image. */}
+      <div
+        className={cn(
+          "glass mx-auto flex h-14 sm:h-16 max-w-5xl items-center justify-between rounded-full px-4 sm:px-6 shadow-lg shadow-black/[0.03] transition-shadow duration-300",
+          scrolled && "shadow-black/[0.06]"
+        )}
+      >
+        <Link href="/" aria-label="NEXFORM home" className="shrink-0">
+          <Logo variant="compact" className="w-24 sm:w-28" />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-7">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass(isActive(link.href))}>
               {link.label}
@@ -119,20 +118,30 @@ export function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-1">
-          <LanguageToggle light={!scrolled} />
-          <ThemeToggle light={!scrolled} />
+          <span className="me-1 text-sm text-muted-foreground" dir="ltr">
+            🇰🇼 Kuwait
+          </span>
+          <LanguageToggle />
+          <ThemeToggle />
+          <Link
+            href="/admin/login"
+            aria-label="Account"
+            className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <User className="h-4 w-4" />
+          </Link>
           <Button
             render={<Link href="/contact" />}
             nativeButton={false}
             size="sm"
-            className="ms-2 bg-gold text-ink hover:bg-gold/90"
+            className="ms-2 rounded-full bg-gold text-ink hover:bg-gold/90"
           >
             {t.nav.cta}
           </Button>
         </div>
 
         <button
-          className={cn("md:hidden p-2", scrolled ? "text-foreground" : "text-white")}
+          className="md:hidden p-2 text-foreground"
           aria-label="Toggle menu"
           onClick={() => setMenuOpen((v) => !v)}
         >
@@ -147,9 +156,9 @@ export function Navbar() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="md:hidden overflow-hidden bg-background/95 backdrop-blur-md border-b border-border"
+            className="glass md:hidden mx-auto mt-2 max-w-5xl overflow-hidden rounded-3xl shadow-lg"
           >
-            <div className="flex flex-col gap-1 px-4 py-4">
+            <div className="flex flex-col gap-1 px-5 py-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -210,13 +219,18 @@ export function Navbar() {
               </Link>
 
               <div className="flex items-center justify-between pt-2">
-                <LanguageToggle />
-                <ThemeToggle />
+                <span className="text-sm text-muted-foreground" dir="ltr">
+                  🇰🇼 Kuwait
+                </span>
+                <div className="flex items-center gap-1">
+                  <LanguageToggle />
+                  <ThemeToggle />
+                </div>
               </div>
               <Button
                 render={<Link href="/contact" />}
                 nativeButton={false}
-                className="mt-2 bg-gold text-ink hover:bg-gold/90"
+                className="mt-2 rounded-full bg-gold text-ink hover:bg-gold/90"
               >
                 {t.nav.cta}
               </Button>

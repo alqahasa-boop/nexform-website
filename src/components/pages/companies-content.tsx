@@ -36,7 +36,7 @@ export function CompaniesContent({ companies }: { companies: CompanyCard[] }) {
           {companies.length > 0 ? (
             <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {companies.map((company) => (
-                <div key={company.slug} className="relative flex flex-col rounded-2xl border border-border bg-card p-6">
+                <div key={company.slug} className="relative flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-lg">
                   {company.featured && (
                     <span className="absolute top-4 end-4 flex items-center gap-1 rounded-full bg-gold px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-ink">
                       <Star className="size-3 fill-current" />
@@ -62,7 +62,7 @@ export function CompaniesContent({ companies }: { companies: CompanyCard[] }) {
                   {company.categories.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {company.categories.map((cat) => (
-                        <span key={cat} className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
+                        <span key={cat} className="rounded-full border border-gold/30 bg-gold-soft/50 px-2.5 py-0.5 text-xs text-gold">
                           {cat}
                         </span>
                       ))}

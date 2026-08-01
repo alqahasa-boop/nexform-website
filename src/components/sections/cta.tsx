@@ -11,7 +11,7 @@ export function Cta() {
   const ArrowIcon = language === "ar" ? ArrowLeft : ArrowRight;
 
   return (
-    <section id="contact" className="relative flex min-h-[60vh] items-center overflow-hidden py-28">
+    <section id="contact" className="relative flex min-h-[46vh] items-center overflow-hidden py-24">
       <GeometricBackground variant="cta" />
 
       <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-8 px-4 sm:px-6 text-center">
@@ -35,7 +35,7 @@ export function Cta() {
             render={<a href="mailto:hello@nexform.com" />}
             nativeButton={false}
             size="lg"
-            className="h-12 px-8 text-base bg-gold text-ink hover:bg-gold/90 gap-2"
+            className="h-12 px-8 text-base bg-gold text-ink hover:bg-gold/90 gap-2 shadow-lg shadow-gold/20"
           >
             {t.cta.button}
             <ArrowIcon className="h-4 w-4" />

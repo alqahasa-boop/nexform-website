@@ -35,14 +35,14 @@ export function StatCounter({ value, label }: { value: string; label: string }) 
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.6 }}
-      className="flex flex-col items-center gap-2 text-center"
+      className="flex flex-col items-center gap-1 text-center"
     >
-      <span className="font-heading text-4xl sm:text-5xl font-medium tracking-tight text-gold tabular-nums">
+      <span className="font-heading text-2xl sm:text-3xl font-medium tracking-tight text-gold tabular-nums">
         {prefix}
         {target !== null ? display : value}
         {suffix}
       </span>
-      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-xs text-muted-foreground">{label}</span>
     </motion.div>
   );
 }

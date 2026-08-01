@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Tajawal, Fraunces } from "next/font/google";
+import { Geist, Geist_Mono, Alexandria, Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const tajawal = Tajawal({
-  variable: "--font-tajawal",
+const alexandria = Alexandria({
+  variable: "--font-arabic",
   subsets: ["arabic"],
-  weight: ["300", "400", "500", "700"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const fraunces = Fraunces({
@@ -83,7 +83,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} ${tajawal.variable} ${fraunces.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${alexandria.variable} ${fraunces.variable}`}
     >
       <body className="antialiased">
         <script
@@ -110,7 +110,7 @@ export default function RootLayout({
             }),
           }}
         />
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <TooltipProvider>
             {children}
             <Toaster />

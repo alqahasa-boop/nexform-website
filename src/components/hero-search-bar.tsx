@@ -106,8 +106,8 @@ export function HeroSearchBar() {
 
   return (
     <div ref={containerRef} className="relative mx-auto w-full max-w-3xl">
-      <div className="flex items-center gap-2 rounded-full border border-border bg-card/90 py-2.5 ps-6 pe-2.5 shadow-2xl shadow-black/[0.06] backdrop-blur-xl transition-shadow focus-within:shadow-black/[0.1]">
-        <Search className="size-5 shrink-0 text-muted-foreground" />
+      <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/30 py-2.5 ps-6 pe-2.5 shadow-2xl shadow-black/20 backdrop-blur-xl transition-shadow">
+        <Search className="size-5 shrink-0 text-white/60" />
         <div className="relative h-11 flex-1">
           <input
             value={query}
@@ -119,7 +119,7 @@ export function HeroSearchBar() {
               }
             }}
             placeholder={copy.basePrompt}
-            className="h-11 w-full bg-transparent text-base text-foreground outline-none placeholder:text-transparent sm:text-lg"
+            className="h-11 w-full bg-transparent text-base text-white outline-none placeholder:text-transparent sm:text-lg"
           />
           {!query && (
             <div className="pointer-events-none absolute inset-0 flex items-center overflow-hidden">
@@ -130,7 +130,7 @@ export function HeroSearchBar() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="truncate text-base text-muted-foreground sm:text-lg"
+                  className="truncate text-base text-white/50 sm:text-lg"
                 >
                   {placeholders[placeholderIndex]}
                 </motion.span>
@@ -144,7 +144,7 @@ export function HeroSearchBar() {
             onClick={handleVoice}
             aria-label="Voice search"
             className={cn(
-              "flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+              "flex size-10 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white",
               listening && "text-ai"
             )}
           >

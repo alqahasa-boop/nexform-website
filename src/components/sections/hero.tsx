@@ -21,7 +21,7 @@ export function Hero() {
       <HeroBackground />
 
       <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-3xl flex-col items-center gap-6 px-4 sm:px-6 text-center">
-        <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-medium tracking-tight text-foreground text-balance">
+        <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-medium tracking-tight text-white text-balance">
           <TextReveal text={t.hero.headline} delay={0.2} />
         </h1>
 
@@ -29,7 +29,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="max-w-2xl text-base sm:text-lg text-muted-foreground text-balance"
+          className="max-w-2xl text-base sm:text-lg text-white/70 text-balance"
         >
           {t.hero.subheadline}
         </motion.p>
@@ -72,7 +72,7 @@ export function Hero() {
             nativeButton={false}
             size="lg"
             variant="outline"
-            className="h-12 px-8 text-base"
+            className="h-12 px-8 text-base border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"
           >
             {t.hero.secondaryBtn}
           </Button>
@@ -85,7 +85,7 @@ export function Hero() {
         transition={{ delay: 1, duration: 0.8 }}
         className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 sm:flex"
       >
-        <div className="h-10 w-6 rounded-full border border-border flex justify-center p-1.5">
+        <div className="h-10 w-6 rounded-full border border-white/30 flex justify-center p-1.5">
           <motion.div
             className="h-1.5 w-1.5 rounded-full bg-gold"
             animate={{ y: [0, 12, 0] }}

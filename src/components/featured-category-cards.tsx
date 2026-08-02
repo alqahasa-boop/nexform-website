@@ -16,17 +16,16 @@ interface CategoryCard {
 }
 
 /**
- * Interior + facade use the original studio photography; Majlis uses real
- * photography supplied by the site owner (wide-format renders with a dark
- * negative-space margin on the left, hence `imagePosition: "right"` so the
- * crop favors the lit room). Kitchen still uses temporary placeholder
- * photography until real NEXFORM project photos are supplied.
+ * Interior + facade use the original studio photography. Majlis and Kitchen
+ * use real photography supplied by the site owner (wide-format renders with
+ * a dark negative-space margin on the left, hence `imagePosition: "right"`
+ * so the crop favors the lit room).
  */
 const CARDS: CategoryCard[] = [
   { key: "interior", href: "/studio/interior", image: interiorShowcase },
   { key: "facade", href: "/studio/exterior", image: heroVilla },
   { key: "majlis", href: "/gallery", image: "/uploads/majlis-diwaniya-3.jpg", imagePosition: "right" },
-  { key: "kitchen", href: "/gallery", image: "/uploads/b4a5067b-b03b-4347-8e5d-63e603294e33-kitchen-marble-walnut.jpg" },
+  { key: "kitchen", href: "/gallery", image: "/uploads/kitchen-real-2.jpg", imagePosition: "right" },
 ];
 
 export function FeaturedCategoryCards() {

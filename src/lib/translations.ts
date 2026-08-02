@@ -61,9 +61,9 @@ export const translations = {
       },
     },
     hero: {
-      headline: "Designing Tomorrow's Architecture",
+      headline: "Build Your Project Intelligently",
       subheadline:
-        "Premium architectural solutions that transform ideas into timeless spaces, combining creativity, innovation, and engineering excellence.",
+        "Everything you need to plan and build your project in one place — designs and inspiration, the construction journey, engineering services, and AI tools.",
       primaryBtn: "Start Your Project",
       secondaryBtn: "Explore Our Work",
     },
@@ -479,9 +479,9 @@ export const translations = {
       },
     },
     hero: {
-      headline: "نصمم مستقبل العمارة",
+      headline: "ابنِ مشروعك بذكاء.",
       subheadline:
-        "نحول الأفكار إلى تصاميم معمارية استثنائية تجمع بين الإبداع، الابتكار، والدقة الهندسية.",
+        "كل ما تحتاجه لتخطيط وبناء مشروعك في مكان واحد؛ من التصاميم والإلهام، إلى رحلة البناء، والخدمات الهندسية، وأدوات الذكاء الاصطناعي.",
       primaryBtn: "ابدأ مشروعك",
       secondaryBtn: "استعرض أعمالنا",
     },

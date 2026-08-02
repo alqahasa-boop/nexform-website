@@ -4,6 +4,7 @@ import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/components/language-provider";
+import { cn } from "@/lib/utils";
 import interiorShowcase from "../../public/interior-showcase.png";
 import heroVilla from "../../public/hero-villa.png";
 
@@ -11,18 +12,20 @@ interface CategoryCard {
   key: "interior" | "facade" | "majlis" | "kitchen";
   href: string;
   image: StaticImageData | string;
+  imagePosition?: "center" | "right";
 }
 
 /**
- * Interior + facade use the original studio photography; Majlis + Kitchen
- * use temporary placeholder photography (from the Gallery seed) until real
- * NEXFORM project photos are supplied — swap the `image` value here when
- * they are, no other changes needed.
+ * Interior + facade use the original studio photography; Majlis uses real
+ * photography supplied by the site owner (wide-format renders with a dark
+ * negative-space margin on the left, hence `imagePosition: "right"` so the
+ * crop favors the lit room). Kitchen still uses temporary placeholder
+ * photography until real NEXFORM project photos are supplied.
  */
 const CARDS: CategoryCard[] = [
   { key: "interior", href: "/studio/interior", image: interiorShowcase },
   { key: "facade", href: "/studio/exterior", image: heroVilla },
-  { key: "majlis", href: "/gallery", image: "/uploads/83016402-2c6d-4d97-a746-8e62a160326d-majlis-grand-hall.jpg" },
+  { key: "majlis", href: "/gallery", image: "/uploads/majlis-diwaniya-3.jpg", imagePosition: "right" },
   { key: "kitchen", href: "/gallery", image: "/uploads/b4a5067b-b03b-4347-8e5d-63e603294e33-kitchen-marble-walnut.jpg" },
 ];
 
@@ -80,7 +83,10 @@ export function FeaturedCategoryCards() {
                       fill
                       quality={90}
                       sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      className={cn(
+                        "object-cover transition-transform duration-700 group-hover:scale-105",
+                        card.imagePosition === "right" ? "object-right" : "object-center"
+                      )}
                     />
                   </motion.div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />

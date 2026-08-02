@@ -12,11 +12,7 @@ export function QuickCategoryChips() {
     { label: c.facades, href: "/studio/exterior" },
     { label: c.majlis, href: "/gallery" },
     { label: c.kitchens, href: "/gallery" },
-    { label: c.floorPlans, href: "/studio/interior" },
     { label: c.constructionJourney, href: "/knowledge/build-journey" },
-    { label: c.knowledgeLibrary, href: "/knowledge/library" },
-    { label: c.engineeringCompanies, href: "/companies" },
-    { label: c.projects, href: "/projects" },
     { label: c.aiStudio, href: "/studio" },
   ];
 

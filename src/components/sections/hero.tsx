@@ -1,8 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/hero-background";
 import { HeroSearchBar } from "@/components/hero-search-bar";
 import { QuickCategoryChips } from "@/components/quick-category-chips";
@@ -10,8 +8,7 @@ import { TextReveal } from "@/components/text-reveal";
 import { useLanguage } from "@/components/language-provider";
 
 export function Hero() {
-  const { t, language } = useLanguage();
-  const ArrowIcon = language === "ar" ? ArrowLeft : ArrowRight;
+  const { t } = useLanguage();
 
   return (
     <section
@@ -50,32 +47,6 @@ export function Hero() {
           className="w-full max-w-none"
         >
           <QuickCategoryChips />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center gap-4 pt-2"
-        >
-          <Button
-            render={<a href="#contact" />}
-            nativeButton={false}
-            size="lg"
-            className="h-12 px-8 text-base bg-gold text-ink hover:bg-gold/90 gap-2"
-          >
-            {t.hero.primaryBtn}
-            <ArrowIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            render={<a href="#services" />}
-            nativeButton={false}
-            size="lg"
-            variant="outline"
-            className="h-12 px-8 text-base border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"
-          >
-            {t.hero.secondaryBtn}
-          </Button>
         </motion.div>
       </div>
 

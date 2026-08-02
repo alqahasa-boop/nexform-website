@@ -2,14 +2,11 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { ArrowRight, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/language-provider";
 import interiorShowcase from "../../../public/interior-showcase.png";
 
 export function About() {
   const { t, language } = useLanguage();
-  const ArrowIcon = language === "ar" ? ArrowLeft : ArrowRight;
 
   return (
     <section id="about" className="relative bg-background">
@@ -71,33 +68,6 @@ export function About() {
               <p className="text-base leading-relaxed text-muted-foreground">
                 {t.about.paragraph2}
               </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="mt-10 flex flex-col sm:flex-row gap-4"
-            >
-              <Button
-                render={<a href="#contact" />}
-                nativeButton={false}
-                size="lg"
-                className="h-12 px-8 text-base bg-gold text-ink hover:bg-gold/90 gap-2"
-              >
-                {t.hero.primaryBtn}
-                <ArrowIcon className="h-4 w-4" />
-              </Button>
-              <Button
-                render={<a href="#services" />}
-                nativeButton={false}
-                size="lg"
-                variant="outline"
-                className="h-12 px-8 text-base"
-              >
-                {t.hero.secondaryBtn}
-              </Button>
             </motion.div>
           </div>
         </div>

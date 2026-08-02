@@ -3,7 +3,6 @@
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sofa, Building2, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import interiorShowcase from "../../public/interior-showcase.png";
 import heroVilla from "../../public/hero-villa.png";
@@ -11,21 +10,20 @@ import heroVilla from "../../public/hero-villa.png";
 interface CategoryCard {
   key: "interior" | "facade" | "majlis" | "kitchen";
   href: string;
-  image?: StaticImageData;
-  placeholderIcon: LucideIcon;
+  image: StaticImageData | string;
 }
 
 /**
- * Only interior + facade photography exists in `public/` today — Majlis and
- * Luxury Kitchens show the same "Coming Soon" treatment already used for
- * empty states elsewhere (ProjectsContent, etc.) rather than faking a photo.
- * Add real images here the moment they're supplied — no other changes needed.
+ * Interior + facade use the original studio photography; Majlis + Kitchen
+ * use temporary placeholder photography (from the Gallery seed) until real
+ * NEXFORM project photos are supplied — swap the `image` value here when
+ * they are, no other changes needed.
  */
 const CARDS: CategoryCard[] = [
-  { key: "interior", href: "/studio/interior", image: interiorShowcase, placeholderIcon: Sofa },
-  { key: "facade", href: "/studio/exterior", image: heroVilla, placeholderIcon: Building2 },
-  { key: "majlis", href: "/gallery", placeholderIcon: Sofa },
-  { key: "kitchen", href: "/gallery", placeholderIcon: Building2 },
+  { key: "interior", href: "/studio/interior", image: interiorShowcase },
+  { key: "facade", href: "/studio/exterior", image: heroVilla },
+  { key: "majlis", href: "/gallery", image: "/uploads/83016402-2c6d-4d97-a746-8e62a160326d-majlis-grand-hall.jpg" },
+  { key: "kitchen", href: "/gallery", image: "/uploads/b4a5067b-b03b-4347-8e5d-63e603294e33-kitchen-marble-walnut.jpg" },
 ];
 
 export function FeaturedCategoryCards() {
@@ -57,41 +55,37 @@ export function FeaturedCategoryCards() {
         <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {CARDS.map((card, i) => {
             const item = c.items[card.key];
-            const Icon = card.placeholderIcon;
             return (
               <motion.div
                 key={card.key}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 28 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.6, delay: (i % 4) * 0.08 }}
+                transition={{ duration: 0.7, delay: (i % 4) * 0.1, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Link
                   href={card.href}
-                  className="group relative flex aspect-[3/4] overflow-hidden rounded-2xl border border-border"
+                  className="group relative flex aspect-[3/4] overflow-hidden rounded-2xl border border-border shadow-sm transition-shadow duration-300 hover:shadow-xl"
                 >
-                  {card.image ? (
+                  <motion.div
+                    initial={{ scale: 1.12, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 1, delay: (i % 4) * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute inset-0"
+                  >
                     <Image
                       src={card.image}
                       alt={item.title}
                       fill
                       quality={90}
                       sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                      placeholder="blur"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                  ) : (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-muted/50">
-                      <Icon className="size-9 text-gold/40" />
-                      <span className="rounded-full bg-background/80 px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground backdrop-blur-sm">
-                        {c.comingSoon}
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                  </motion.div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
                   <div className="relative z-10 mt-auto p-5">
                     <h3 className="font-heading text-lg font-medium text-white">{item.title}</h3>
-                    <p className="mt-1 line-clamp-2 text-xs text-white/70">{item.description}</p>
                   </div>
                 </Link>
               </motion.div>

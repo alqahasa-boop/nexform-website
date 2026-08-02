@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Search, Mic, Sparkles, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { useAiWidget } from "@/components/ai/ai-widget-provider";
@@ -62,15 +63,27 @@ export function HeroSearchBar() {
   const copy =
     language === "ar"
       ? {
-          placeholder: "ابحث عن مخططات، تصميم داخلي، واجهات، مقالات أو اسأل الذكاء الاصطناعي…",
+          basePrompt: "ماذا تحب أن تصمم اليوم؟",
           askAi: "اسأل الذكاء الاصطناعي",
           noResults: "لا توجد نتائج بعد — جرّب كلمات مختلفة أو اسأل الذكاء الاصطناعي مباشرة.",
+          suggestions: ["تصميم داخلي", "واجهة فيلا", "مطبخ", "مجلس", "مخطط أرضي", "تكلفة البناء", "مكتب هندسي"],
         }
       : {
-          placeholder: "Search floor plans, interior design, facades, articles or ask AI…",
+          basePrompt: "What would you like to design today?",
           askAi: "Ask AI",
           noResults: "No matches yet — try different words, or ask AI directly.",
+          suggestions: ["Interior Design", "Villa Facade", "Kitchen", "Majlis", "Floor Plan", "Building Cost", "Engineering Office"],
         };
+
+  const placeholders = [copy.basePrompt, ...copy.suggestions];
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  useEffect(() => {
+    setPlaceholderIndex(0);
+    const id = setInterval(() => setPlaceholderIndex((i) => (i + 1) % placeholders.length), 2800);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const handleSearch = () => {
     if (!query.trim()) return;
@@ -92,28 +105,46 @@ export function HeroSearchBar() {
   };
 
   return (
-    <div ref={containerRef} className="relative mx-auto w-full max-w-2xl">
-      <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/30 py-2 ps-5 pe-2 shadow-xl shadow-black/20 backdrop-blur-xl">
-        <Search className="size-5 shrink-0 text-white/60" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleSearch();
-            }
-          }}
-          placeholder={copy.placeholder}
-          className="h-10 flex-1 bg-transparent text-sm text-white placeholder:text-white/50 outline-none sm:text-base"
-        />
+    <div ref={containerRef} className="relative mx-auto w-full max-w-3xl">
+      <div className="flex items-center gap-2 rounded-full border border-border bg-card/90 py-2.5 ps-6 pe-2.5 shadow-2xl shadow-black/[0.06] backdrop-blur-xl transition-shadow focus-within:shadow-black/[0.1]">
+        <Search className="size-5 shrink-0 text-muted-foreground" />
+        <div className="relative h-11 flex-1">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSearch();
+              }
+            }}
+            placeholder={copy.basePrompt}
+            className="h-11 w-full bg-transparent text-base text-foreground outline-none placeholder:text-transparent sm:text-lg"
+          />
+          {!query && (
+            <div className="pointer-events-none absolute inset-0 flex items-center overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={placeholderIndex}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="truncate text-base text-muted-foreground sm:text-lg"
+                >
+                  {placeholders[placeholderIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
         {voiceSupported && (
           <button
             type="button"
             onClick={handleVoice}
             aria-label="Voice search"
             className={cn(
-              "flex size-9 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white",
+              "flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
               listening && "text-ai"
             )}
           >
@@ -124,7 +155,7 @@ export function HeroSearchBar() {
           type="button"
           onClick={handleAskAi}
           aria-label={copy.askAi}
-          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-ai text-ai-foreground transition-transform hover:scale-105"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-ai text-ai-foreground transition-transform hover:scale-105"
         >
           <Sparkles className="size-4" />
         </button>
@@ -133,7 +164,7 @@ export function HeroSearchBar() {
           onClick={handleSearch}
           disabled={isSearching || !query.trim()}
           aria-label="Search"
-          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gold text-ink transition-transform hover:scale-105 disabled:opacity-40"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold text-ink transition-transform hover:scale-105 disabled:opacity-40"
         >
           {isSearching ? <Loader2 className="size-4 animate-spin" /> : <ArrowIcon className="size-4" />}
         </button>

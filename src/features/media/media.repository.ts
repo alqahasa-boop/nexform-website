@@ -4,11 +4,12 @@ import { buildPagination, type PaginationParams } from "@/types/api";
 import type { CreateFolderInput, CreateMediaAssetInput, UpdateMediaAssetInput } from "./types";
 
 export function listMediaAssets(
-  params: PaginationParams & { kind?: MediaKind; folderId?: string; tagId?: string; search?: string } = {}
+  params: PaginationParams & { kind?: MediaKind; folderId?: string | null; tagId?: string; search?: string } = {}
 ) {
   const where = {
     ...(params.kind && { kind: params.kind }),
-    ...(params.folderId && { folderId: params.folderId }),
+    // Tri-state: `undefined` = every folder, `null` = root-level only, a string = that folder only.
+    ...(params.folderId !== undefined && { folderId: params.folderId }),
     ...(params.tagId && { tags: { some: { tagId: params.tagId } } }),
     ...(params.search && { fileName: { contains: params.search, mode: "insensitive" as const } }),
   };
@@ -65,6 +66,40 @@ export function createFolder(input: CreateFolderInput) {
 
 export function listFolders(parentId?: string | null) {
   return db.mediaFolder.findMany({ where: { parentId: parentId ?? null }, orderBy: { name: "asc" } });
+}
+
+/** Top-level folders with their asset counts, for the Media Library sidebar. */
+export function listFoldersWithAssetCounts() {
+  return db.mediaFolder.findMany({
+    where: { parentId: null },
+    include: { _count: { select: { assets: true } } },
+    orderBy: { name: "asc" },
+  });
+}
+
+export function countRootMediaAssets() {
+  return db.mediaAsset.count({ where: { folderId: null } });
+}
+
+export function renameFolder(id: string, name: string) {
+  return db.mediaFolder.update({ where: { id }, data: { name } });
+}
+
+/** Blocked (by the caller) if the folder still has assets or child folders — mirrors how `deleteMediaAssetAction` blocks on usages. */
+export function deleteFolder(id: string) {
+  return db.mediaFolder.delete({ where: { id } });
+}
+
+/** Two independent counts for a pre-delete check — no atomicity needed, so plain `Promise.all` rather than `$transaction` (one less reserved connection under load). */
+export function countFolderContents(id: string) {
+  return Promise.all([
+    db.mediaAsset.count({ where: { folderId: id } }),
+    db.mediaFolder.count({ where: { parentId: id } }),
+  ]);
+}
+
+export function moveMediaAssetToFolder(id: string, folderId: string | null) {
+  return db.mediaAsset.update({ where: { id }, data: { folderId } });
 }
 
 export function createTag(name: string) {

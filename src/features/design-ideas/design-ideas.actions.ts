@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { assertPermission, ForbiddenError } from "@/lib/auth/admin-session";
+import { getCustomerSession } from "@/lib/auth/customer-session";
 import {
   createDesignIdea,
   updateDesignIdea,
@@ -9,6 +10,7 @@ import {
   deleteDesignIdea,
   bulkPublishDesignIdeas,
   bulkDeleteDesignIdeas,
+  toggleDesignIdeaSave,
 } from "./design-ideas.repository";
 import { createDesignIdeaSchema, updateDesignIdeaSchema } from "./types";
 import { sanitizeRichText } from "@/lib/security/sanitize";
@@ -115,4 +117,33 @@ export async function bulkDeleteDesignIdeasAction(ids: string[]): Promise<ApiRes
     if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
     throw error;
   }
+}
+
+/**
+ * Public entry point for the Gallery "Save" heart button — self-service, gated by
+ * "is anyone signed in" rather than an admin permission (mirrors how
+ * `createDesignRequestAction` uses `getAdminSession()` directly for the same reason).
+ */
+export async function toggleSaveDesignIdeaAction(designIdeaId: string): Promise<ApiResult<{ saved: boolean }>> {
+  const user = await getCustomerSession();
+  if (!user) return apiError("Sign in to save design ideas.", "UNAUTHENTICATED");
+
+  const result = await toggleDesignIdeaSave(designIdeaId, user.id);
+  revalidatePath("/gallery");
+  revalidatePath("/customer/dashboard");
+  return apiSuccess(result);
+}
+
+/**
+ * IDs the signed-in customer has already saved, so the Gallery's heart icons can
+ * reflect real state on load. Returns an empty list for guests — deliberately not
+ * an error, since "no saves yet" and "not signed in" render identically (an
+ * outlined heart).
+ */
+export async function getMySavedDesignIdeaIdsAction(): Promise<ApiResult<string[]>> {
+  const user = await getCustomerSession();
+  if (!user) return apiSuccess([]);
+
+  const saves = await db.designIdeaSave.findMany({ where: { userId: user.id }, select: { designIdeaId: true } });
+  return apiSuccess(saves.map((s) => s.designIdeaId));
 }

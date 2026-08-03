@@ -3,14 +3,15 @@ import { authConfig } from "@/lib/auth/auth.config";
 
 /**
  * Route-protection foundation. Uses the edge-safe `authConfig` (no Prisma
- * adapter) so it can run in the Edge runtime. The matcher only covers
- * `/admin/**` and `/account/**` — neither exists as a page yet, so this has
- * zero effect on the current site until Phase 2 adds those routes.
+ * adapter) so it can run in the Edge runtime. `/admin/**` and `/account/**`
+ * gate on any authenticated session; `/customer/**` (the public customer
+ * account area) redirects to its own sign-in page — see the `authorized()`
+ * callback in `auth.config.ts` for the per-prefix logic.
  */
 export const { auth: middleware } = NextAuth(authConfig);
 
 export default middleware;
 
 export const config = {
-  matcher: ["/admin/:path*", "/account/:path*"],
+  matcher: ["/admin/:path*", "/account/:path*", "/customer/:path*"],
 };

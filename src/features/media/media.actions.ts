@@ -12,7 +12,13 @@ import {
   deleteMediaAsset,
   listMediaAssets,
   listMediaUsage,
+  createFolder,
+  renameFolder,
+  deleteFolder,
+  countFolderContents,
+  moveMediaAssetToFolder,
 } from "./media.repository";
+import { createFolderSchema, renameFolderSchema } from "./types";
 import { apiSuccess, apiError, type ApiResult } from "@/types/api";
 import { UPLOAD_RULES } from "@/config/upload.config";
 
@@ -111,6 +117,73 @@ export async function deleteMediaAssetAction(id: string): Promise<ApiResult<null
     await recordActivity({ userId: user.id, action: "DELETE", entityType: "MediaAsset", entityId: id });
     revalidatePath("/admin/media");
 
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function createFolderAction(input: unknown): Promise<ApiResult<{ id: string }>> {
+  try {
+    const user = await assertPermission("media:create");
+    const parsed = createFolderSchema.safeParse(input);
+    if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? "Invalid input.", "VALIDATION");
+
+    const folder = await createFolder(parsed.data);
+    await recordActivity({ userId: user.id, action: "CREATE", entityType: "MediaFolder", entityId: folder.id });
+    revalidatePath("/admin/media");
+    return apiSuccess({ id: folder.id });
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function renameFolderAction(id: string, input: unknown): Promise<ApiResult<null>> {
+  try {
+    const user = await assertPermission("media:update");
+    const parsed = renameFolderSchema.safeParse(input);
+    if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? "Invalid input.", "VALIDATION");
+
+    await renameFolder(id, parsed.data.name);
+    await recordActivity({ userId: user.id, action: "UPDATE", entityType: "MediaFolder", entityId: id });
+    revalidatePath("/admin/media");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function deleteFolderAction(id: string): Promise<ApiResult<null>> {
+  try {
+    const user = await assertPermission("media:delete");
+
+    const [assetCount, childFolderCount] = await countFolderContents(id);
+    if (assetCount > 0 || childFolderCount > 0) {
+      return apiError(
+        "This folder still contains files or subfolders. Move or remove them first.",
+        "NOT_EMPTY"
+      );
+    }
+
+    await deleteFolder(id);
+    await recordActivity({ userId: user.id, action: "DELETE", entityType: "MediaFolder", entityId: id });
+    revalidatePath("/admin/media");
+    return apiSuccess(null);
+  } catch (error) {
+    if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");
+    throw error;
+  }
+}
+
+export async function moveMediaAssetToFolderAction(id: string, folderId: string | null): Promise<ApiResult<null>> {
+  try {
+    const user = await assertPermission("media:update");
+    await moveMediaAssetToFolder(id, folderId);
+    await recordActivity({ userId: user.id, action: "UPDATE", entityType: "MediaAsset", entityId: id, metadata: { movedToFolderId: folderId } });
+    revalidatePath("/admin/media");
     return apiSuccess(null);
   } catch (error) {
     if (error instanceof ForbiddenError) return apiError(error.message, "FORBIDDEN");

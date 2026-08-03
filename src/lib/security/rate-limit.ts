@@ -47,6 +47,7 @@ export function rateLimit({ key, limit, windowMs }: RateLimitOptions): RateLimit
 /** Common presets so callers don't invent inconsistent limits ad hoc. */
 export const RATE_LIMIT_PRESETS = {
   login: { limit: 5, windowMs: 15 * 60 * 1000 },
+  signup: { limit: 5, windowMs: 60 * 60 * 1000 },
   passwordReset: { limit: 3, windowMs: 60 * 60 * 1000 },
   contactForm: { limit: 5, windowMs: 60 * 60 * 1000 },
   designRequestForm: { limit: 5, windowMs: 60 * 60 * 1000 },

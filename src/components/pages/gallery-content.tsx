@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, Star } from "lucide-react";
@@ -8,9 +8,12 @@ import { PageHeader } from "@/components/page-header";
 import { CtaBanner } from "@/components/cta-banner";
 import { useLanguage } from "@/components/language-provider";
 import { AskAiButton } from "@/components/ai/ask-ai-button";
+import { SaveDesignIdeaButton } from "@/components/save-design-idea-button";
+import { getMySavedDesignIdeaIdsAction } from "@/features/design-ideas/design-ideas.actions";
 import { cn } from "@/lib/utils";
 
 export interface GalleryCard {
+  id: string;
   slug: string;
   title: string;
   description: string;
@@ -26,6 +29,13 @@ export function GalleryContent({ items }: { items: { en: GalleryCard[]; ar: Gall
   const p = t.galleryPage;
   const published = items[language];
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    getMySavedDesignIdeaIdsAction().then((result) => {
+      if (result.success) setSavedIds(new Set(result.data));
+    });
+  }, []);
 
   const categories = useMemo(
     () => Array.from(new Set(published.map((item) => item.category).filter((c): c is string => Boolean(c)))),
@@ -102,6 +112,11 @@ export function GalleryContent({ items }: { items: { en: GalleryCard[]; ar: Gall
                           Featured
                         </span>
                       )}
+                      <SaveDesignIdeaButton
+                        designIdeaId={item.id}
+                        initialSaved={savedIds.has(item.id)}
+                        className="absolute top-4 end-4"
+                      />
                     </div>
                     <div className="bg-card p-6">
                       <div className="flex items-center justify-between gap-2">

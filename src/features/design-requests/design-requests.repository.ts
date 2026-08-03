@@ -43,6 +43,15 @@ export function listDesignRequests(
   });
 }
 
+/** A signed-in customer's own submitted requests, for their account dashboard. */
+export function listDesignRequestsByCustomer(customerId: string) {
+  return db.designRequest.findMany({
+    where: { customerId, deletedAt: null },
+    include: { service: true, assignedTo: { select: { id: true, name: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export function getDesignRequestById(id: string) {
   return db.designRequest.findUnique({
     where: { id },

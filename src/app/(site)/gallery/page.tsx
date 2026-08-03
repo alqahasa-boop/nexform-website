@@ -13,6 +13,7 @@ export default async function GalleryPage() {
   const [en, ar] = await Promise.all([listPublishedDesignIdeas("en"), listPublishedDesignIdeas("ar")]);
 
   const toCard = (d: (typeof en)[number]) => ({
+    id: d.id,
     slug: d.slug,
     title: d.title,
     description: d.description ?? "",

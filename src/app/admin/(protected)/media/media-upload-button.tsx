@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { uploadMediaAction } from "@/features/media/media.actions";
 
-export function MediaUploadButton() {
+export function MediaUploadButton({ folderId }: { folderId?: string | null }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -17,6 +17,7 @@ export function MediaUploadButton() {
       for (const file of Array.from(files)) {
         const formData = new FormData();
         formData.append("file", file);
+        if (folderId) formData.append("folderId", folderId);
         const result = await uploadMediaAction(formData);
         if (!result.success) toast.error(`${file.name}: ${result.error}`);
       }

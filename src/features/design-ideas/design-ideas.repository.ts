@@ -147,6 +147,15 @@ export function recordDesignIdeaShare(id: string) {
   return db.designIdea.update({ where: { id }, data: { shareCount: { increment: 1 } } });
 }
 
+/** A signed-in customer's saved design ideas, most recently saved first. */
+export function listSavedDesignIdeasByUser(userId: string) {
+  return db.designIdeaSave.findMany({
+    where: { userId },
+    include: { designIdea: { include: { category: true, coverImage: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 /** Toggles a save and keeps the denormalized `saveCount` cache in sync atomically. */
 export async function toggleDesignIdeaSave(designIdeaId: string, userId: string) {
   const existing = await db.designIdeaSave.findUnique({

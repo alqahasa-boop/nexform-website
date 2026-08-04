@@ -165,9 +165,14 @@
 }
 
 .glass {
-  background: color-mix(in oklch, var(--card) 55%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  /* High tint opacity is deliberate: this pill sits over hard-edged content (a dark
+     hero photo running into a light section, for example), and a lighter tint let the
+     backdrop-blur show that seam right through the bar. Pushing the tint up front-loads
+     the surface's own color so it reads as one consistent frosted panel regardless of
+     what's behind it, while blur+saturate keep it feeling like glass rather than a flat card. */
+  background: color-mix(in oklch, var(--card) 95%, transparent);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
   border: 1px solid color-mix(in oklch, var(--foreground) 8%, transparent);
 }
 

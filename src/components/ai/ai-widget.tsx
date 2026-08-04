@@ -400,11 +400,15 @@ export function AiWidget() {
         )}
       </AnimatePresence>
 
+      {/* Hidden below md: the mobile bottom nav already has an elevated AI tab in the
+          same spot/color, so a second floating trigger here would just duplicate it.
+          The panel above still opens on mobile via `openWidget()` (AskAiButton, hero
+          search, etc.) — only this standalone launcher button is desktop-only. */}
       <Button
         size="icon-lg"
         onClick={() => setOpen((v) => !v)}
         aria-label={t.launcherLabel}
-        className="size-14 rounded-full bg-ai text-ai-foreground shadow-xl shadow-ai/30 hover:bg-ai/90"
+        className="hidden size-14 rounded-full bg-ai text-ai-foreground shadow-xl shadow-ai/30 hover:bg-ai/90 md:inline-flex"
       >
         {open ? <X className="size-6" /> : <Sparkles className="size-6" />}
       </Button>
